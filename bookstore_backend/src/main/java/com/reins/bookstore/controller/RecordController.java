@@ -54,6 +54,29 @@ public class RecordController {
         return wrapRecord(record);
     }
 
+    @RequestMapping("/insert")
+    public List<String> insertAllRecord(@RequestBody List<JSONObject> jsonObjectList
+    ) {
+        List<String> results = new ArrayList<>();
+        for (JSONObject jsonObject :jsonObjectList){
+            JSONObject res = new JSONObject();
+            res = insertOneRecord(jsonObject);
+            System.out.println("json"+res);
+            System.out.println("rid"+(res.getInteger("record_id")));
+
+            if (res.getInteger("record_id") == -1){
+                results.add("Record Error!");
+                System.out.println("-1");
+            }else{
+                results.add("Record OK!");
+                System.out.println("ok");
+            }
+
+        }
+
+        return results;
+
+    }
     @PostMapping
     public JSONObject insertOneRecord(@RequestBody JSONObject jsonObject
 

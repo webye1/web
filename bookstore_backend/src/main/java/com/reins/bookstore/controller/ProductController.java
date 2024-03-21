@@ -50,6 +50,30 @@ public class ProductController {
         return wrapProduct(product);
     }
 
+    @RequestMapping("/insert")
+    public List<String> insertAllProduct(@RequestBody List<JSONObject> jsonObjectList
+    ) {
+        List<String> results = new ArrayList<>();
+        for (JSONObject jsonObject :jsonObjectList){
+            JSONObject res = new JSONObject();
+            res = insertOneProduct(jsonObject);
+            System.out.println("json"+res);
+            System.out.println("pid"+(res.getInteger("product_id")));
+
+            if (res.getInteger("product_id") == -1){
+                results.add("Product Error!");
+                System.out.println("-1");
+            }else{
+                results.add("Product OK!");
+                System.out.println("ok");
+            }
+
+        }
+
+        return results;
+
+    }
+
     @PostMapping
     public JSONObject insertOneProduct(@RequestBody JSONObject jsonObject
     ) {

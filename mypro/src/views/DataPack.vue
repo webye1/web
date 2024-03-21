@@ -13,23 +13,23 @@
 <div class="wrapper">
      <!-- 菜单部分 -->
 	 <Footer></Footer>
-	
+
 	<svg :class="{ 'active': $route.path === '/Data' }"
                 @click="to('/Data')" t="1709382634550" id="lastPage" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2321" width="20" height="20"><path d="M152.746667 546.133333a34.133333 34.133333 0 0 1-24.149334-58.282666l247.466667-247.466667a34.133333 34.133333 0 0 1 48.298667 48.298667l-247.466667 247.466666A34.133333 34.133333 0 0 1 152.746667 546.133333z" p-id="2322"></path><path d="M400.384 793.6a34.133333 34.133333 0 0 1-24.149333-9.984l-247.466667-247.466667A34.133333 34.133333 0 0 1 152.746667 477.866667h718.506666a34.133333 34.133333 0 0 1 0 68.266666H235.178667l189.354666 189.354667A34.133333 34.133333 0 0 1 400.384 793.6z" p-id="2323"></path></svg>
-	
+
 	<div class="op-list">
 		<a class="title-cn">包裹记录({{ totalPackets }})</a>
 		<a class="title-eng">All Records</a>
-		
+
 		<div class="search-box">
 			<svg t="1709038374337" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2605" width="20" height="20"><path d="M450.218667 818.517333a368.298667 368.298667 0 0 1-260.437334-628.736 368.298667 368.298667 0 0 1 520.533334 520.533334 365.909333 365.909333 0 0 1-260.096 108.202666z m0-668.16A299.946667 299.946667 0 1 0 662.442667 238.08a298.666667 298.666667 0 0 0-212.224-87.722667z" p-id="2606"></path><path d="M907.946667 942.08a34.133333 34.133333 0 0 1-24.149334-9.984L662.442667 710.656a34.133333 34.133333 0 0 1 48.213333-48.213333l221.866667 221.354666a34.133333 34.133333 0 0 1-24.149334 58.282667z" p-id="2607"></path>
 			</svg>
 			<input type="text" id="searchInput" placeholder="请输入快递单号" v-model="searchKeyword" @keyup.enter.stop="filterByKeyword">
 
 		</div>
-		
+
 		<div id="data-display"></div>
-		
+
 		<div class="list-header">
 		            <div class="header-item">代理</div>
 		            <div class="header-item">客户</div>
@@ -60,7 +60,7 @@
 			<button id="nextPage" class="page-button" @click="nextPage">下一页</button>
 		</div>
 	</div>
-	
+
 </div>
 </v-scale-screen>
 </template>
@@ -91,7 +91,7 @@
 						this.currentUserType = localStorage.getItem('currentUserType');
 						this.currentUserName = localStorage.getItem('currentUserName');
 			}
-				
+
 			else{
 				/// 当组件挂载时，尝试从LocalStorage中获取保存的数据
 				const savedData = JSON.parse(localStorage.getItem('userData'));
@@ -101,11 +101,11 @@
 				this.currentUserName = savedData.currentUserName;
 			}
 			}
-			
+
             this.fetchProDataFromBackend(); // 加载页面时获取数据
-			
+
 		},
-		
+
         computed: {
             paginatedItems() {
                 const startIndex = (this.currentPage - 1) * this.itemsPerPage;
@@ -152,7 +152,9 @@
 			filterByKeyword() {
 				if (this.searchKeyword.trim() !== '') { // 检查搜索关键词是否为空
 					// 使用关键字对快递单号进行筛选
+          console.log("关键词"+searchKeyword);
 					this.items = this.items.filter(item => item.tracking_number.includes(this.searchKeyword));
+          console.log("record"+items);
 				} else {
 					// 关键字为空时，显示全部数据
 					this.fetchProDataFromBackend();
@@ -176,7 +178,7 @@
 	position: fixed;
 	margin-left: 21%;
 	margin-top: 1.5%;
-	
+
 }
 
 #lastPage:hover{
@@ -188,12 +190,12 @@
     margin-top: 33px; /* 顶部外边距 */
 	margin-left: 72%;
 	width:15%;
-	
+
     padding: 4px;
     background-color: #fff; /* 搜索框的背景色 */
 	border: 1px solid #ccc; /* 添加边框 */
 	border-radius: 10px;
-	
+
 }
 
 .search-box input {
@@ -232,8 +234,8 @@
     margin-left: 4.6%;
 	margin-right: 5%;
     overflow: hidden; /* 清除浮动 */
-	
-	
+
+
 }
 .op-list .list-item {
 	align-items: flex-start; /* 让子项左对齐 */
@@ -244,7 +246,7 @@
     list-style: none;
     overflow: hidden; /* 清除浮动 */
 	text-align: center;
-	
+
 }
 
 /* 设置默认宽度为 14.3% */
@@ -292,8 +294,8 @@
 	font-size: 5mm;
 	color: #333;
 	display: flex;
-	width: 89%; 
-	height: 40px; 
+	width: 89%;
+	height: 40px;
 	margin-left: 6%;
 	margin-right: 5%;
 	align-items: flex-start; /* 让子项左对齐 */
@@ -328,7 +330,7 @@
 .op-list .title-cn{
 	margin-top: 3%;
 	margin-left: 5%;
-	
+
 }
 
 .op-list .title-eng{
