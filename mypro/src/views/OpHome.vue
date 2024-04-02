@@ -13,7 +13,7 @@
   <div class="wrapper">
     <!-- 菜单部分 -->
     <Footer></Footer>
-    
+
     <!-- 使用v-for循环显示标题和对应的dropArea -->
     <div class="dropContainer">
       <div v-for="(dropArea, index) in dropAreas" :key="index" :ref="'dropArea_' + index" class="dropAreaContainer">
@@ -34,7 +34,7 @@
       <div class = "UpdateBody">
         <p>柜号：</p>
         <input type="text" v-model="cabinetNumber" placeholder="柜号">
-    
+
       <div class="switcher">
         <select id="status-switcher" v-model="selectedStatus">
                     <option value="">所有状态</option>
@@ -77,7 +77,7 @@
 <script>
 import Footer from '../components/Footer.vue';
 import XLSX from 'xlsx';
-import axios from 'axios'; 
+import axios from 'axios';
 
 export default {
   name: 'OpHome',
@@ -113,15 +113,15 @@ export default {
     // console.log("props UN:", this.$route.query.currentUserName);
       // 页面加载时从localStorage读取用户类型
       if (this.$route.query.currentUserType && this.$route.query.currentUserName ) {
-                   
-                    
+
+
         }
-              
+
       else{
         this.$router.push('/');
                     return;
       }
-      
+
   },
   methods: {
     updateStatus() {
@@ -155,9 +155,9 @@ export default {
                 ('0' + currentTime.getSeconds()).slice(-2);
               data3['manager'] = this.currentUserName;
               data4['manager'] = this.currentUserName;
-              let cleanedCounterNumber = data3['counter_number'];
 
-              data3['counter_number'] = cleanedCounterNumber.replace(/\s*/g,'');
+
+              data3['counter_number'] = data3['counter_number'].replace(/ /g, '');
 
 
           // 发送数据到后端
@@ -181,6 +181,9 @@ export default {
               ('0' + currentTime.getSeconds()).slice(-2);
             data4['manager'] = this.currentUserName;
             data4['tracking_number'] = res.data[i].tracking_number;
+            data4['counter_number'] = data4['counter_number'].replace(/ /g, '');
+            data4['tracking_number'] = data4['tracking_number'].replace(/ /g, '');
+
             console.log(data4);
             list.push(data4);
 
@@ -285,7 +288,7 @@ export default {
     },
     selectFile(dropAreaIndex) {
       const dropAreaRef = this.$refs['dropArea_' + dropAreaIndex];
-      
+
       this.dropIndex = dropAreaIndex;
       if (!dropAreaRef) {
         console.error('Drop area ref not found!');
@@ -327,7 +330,7 @@ export default {
 
       // 设置上传按钮为不可点击
       this.uploadButtonDisabled = true;
-      
+
       // 设置文件为上传中状态
       file.uploading = true;
 
@@ -412,22 +415,23 @@ export default {
                                     ('0' + '00').slice(-2) + ':' +
                                     ('0' + '00').slice(-2);
               }
-            
+
           }
+
           data['username'] = this.currentUserName;
-          let cleanedTrackingNumber = data['tracking_number']; 
 
-          data['tracking_number'] = cleanedTrackingNumber.replace(/\s*/g,''); 
-          
-          let cleanedCounterNumber = data['counter_number']; 
 
-          data['counter_number'] = cleanedCounterNumber.replace(/\s*/g,''); 
+          data['tracking_number'] =  data['tracking_number'].replace(/ /g, '');
+
+
+
+          data['counter_number'] =  data['counter_number'].replace(/ /g, '');
 
           // console.log(data['tracking_number']);
 
           // 根据操作类型决定发送数据到后端的逻辑
           // let result;
-          
+
           // // console.log("data['op_time']");
           // // console.log(data['op_time']);
           // // console.log("productdata:");
@@ -442,7 +446,7 @@ export default {
           // // 将每行数据的上传结果保存到数组中
           // uploadResults.push(result);
           // console.log("data:");
-          // console.log(data);
+            console.log(data);
             this.list_P.push(data);
             // console.log("this.list_P");
             // console.log(this.list_P);
@@ -451,7 +455,7 @@ export default {
           // console.log("operationType");
           // console.log(operationType);
 
-         
+
             this.sendInsertDataToBackend(this.list_P,file);
 
           // 将每行数据的上传结果保存到数组中
@@ -460,7 +464,7 @@ export default {
 
         for(let n = 0 ; n<uploadResults.length ; n++){
           if(uploadResults[n].success!=true){
-            
+
             this.resultFlag=false;
             this.$message({ // 使用 this.$message 并且是小写的 m
               message: '第'+(n+1)+"行导入错误",
@@ -479,11 +483,11 @@ export default {
 
         this.files = [];
 
-        
+
       };
 
       reader.readAsArrayBuffer(file);
-      
+
       ////////////////record 插入///////////////////
       // const uploadResults2 = [];
       // const reader2 = new FileReader();
@@ -505,7 +509,7 @@ export default {
       //     // 其他列名和参数名称的映射关系
       //   };
 
-     
+
 
       //   // 遍历行数据，构造请求参数并发送到后端
       //   for (let i = 1; i < jsonData.length; i++) {
@@ -540,11 +544,11 @@ export default {
       //     let result2;
       //     // console.log("Recorddata:");
       //     // console.log(data);
-          
-         
+
+
       //     // result2 = await this.sendInsertDataToRecord(data2);
-        
-         
+
+
       //     // console.log("data2:");
       //     // console.log(data2);
       //     //   console.log("this.list_R");
@@ -574,7 +578,7 @@ export default {
 
 
     async sendInsertDataToBackend(data_p,file) {
-    
+
         // console.log("sendInsertDataToBackend成功");
         // 发送数据到后端的逻辑，插入操作
         axios.post('http://47.98.58.79:8080/Product/insert', data_p)
@@ -603,7 +607,7 @@ export default {
               // 其他列名和参数名称的映射关系
             };
 
-        
+
 
             // 遍历行数据，构造请求参数并发送到后端
             for (let i = 1; i < jsonData.length; i++) {
@@ -638,20 +642,20 @@ export default {
               // let result2;
               // console.log("Recorddata:");
               // console.log(data);
-              
-            
+
+
               // result2 = await this.sendInsertDataToRecord(data2);
-            
-            
+
+
               // console.log("data2[tracking number]:");
               // console.log(data2['tracking_number']);
               //   console.log("this.list_R");
               //   console.log(this.list_R);
 
-              let cleanedTrackingNumber = data2['tracking_number']; 
 
-              data2['tracking_number'] = cleanedTrackingNumber.replace(/\s/g, ''); 
 
+              data2['tracking_number'] =  data2['tracking_number'].replace(/ /g, '');
+              data2['counter_number'] =  data2['counter_number'].replace(/ /g, '');
               // console.log(data2['tracking_number']);
 
               // console.log("data2[tracking number]:");
@@ -691,19 +695,19 @@ export default {
             };
 
             reader2.readAsArrayBuffer(file);
-            this.$message({ 
+            this.$message({
               message: "上传成功",
               type: 'success'
             });
         })
         .catch((err) => {
           if (err.response && err.response.status === 401) {
-            this.$message({ 
+            this.$message({
               message: "上传错误",
               type: 'error'
             });
           } else {
-            this.$message({ 
+            this.$message({
               message: "网络错误",
               type: 'error'
             });
@@ -713,7 +717,7 @@ export default {
         // console.log(data);
         // let res_op = [];//遍历response,如果i为error则删除list_R对应的i,删除完后继续插入
         //record插入代码
-        
+
 
 
     },
@@ -824,21 +828,21 @@ export default {
   //         let result;
   //         // console.log("Recorddata:");
   //         // console.log(data);
-          
-         
+
+
   //         result = await this.sendInsertDataToRecord(data);
   //         // console.log("result");
   //         // console.log(result);
-         
+
 
   //         // 将每行数据的上传结果保存到数组中
   //         uploadResults.push(result);
 
   //       }
-        
+
   //       for(let n = 0 ; n<uploadResults.length ; n++){
   //         if(uploadResults[n].success!=true){
-            
+
   //           // this.resultFlag=false;
   //           // this.$message({ // 使用 this.$message 并且是小写的 m
   //           //   message: '第'+(n-1)+"行导入错误",
@@ -857,7 +861,7 @@ export default {
 
   //       // this.files = [];
 
-        
+
   //     };
 
   //     reader.readAsArrayBuffer(file);
@@ -877,7 +881,7 @@ export default {
         return { success: false, error };
       }
     },
-    
+
     downloadExcel(dropArea) {
       // 下载Excel文件的逻辑
       window.open(dropArea.fileUrl);
@@ -901,7 +905,7 @@ export default {
       const data = [
         ['代理', '客户名字', '件数', '总毛重KG', '产品名称', '快递单号', '柜号', '状态', '更新时间',' '],
         ['HXlogistics', '客户', 1, 1.4, '生活用品', 'ABCD123456789', 'ABCD123456789', '已入库', '2024年3月15日','示例，上传时删除该行，更新时间仅在操作失误时填写，默认为空即可']
-        
+
       ];
 
       // 将数据转换为Excel文件
@@ -922,9 +926,9 @@ export default {
       link.click();
       document.body.removeChild(link);
     }
-  
+
   }
-  
+
 };
 </script>
 
@@ -945,7 +949,7 @@ export default {
 
 }
 .wrapper .dropAreaContainer{
-  
+
   text-align: center;
 	display: flex;
 	flex-direction: column;
@@ -954,7 +958,7 @@ export default {
 }
 
 .wrapper .UpdateDiv{
-  
+
   text-align: center;
 	display: flex;
 	flex-direction: column;
@@ -1013,7 +1017,7 @@ export default {
 	height: 4vh;
 	color: darkgrey;
 	font-size: 5mm;
-	border:1px solid #e7e7e7; 
+	border:1px solid #e7e7e7;
 	text-align: center;
 	 border: 1px dashed #ccc; /* 虚线边框 */
 	 border-radius: 2px;
