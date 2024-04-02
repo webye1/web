@@ -4,16 +4,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.reins.bookstore.entity.Manager;
 import com.reins.bookstore.entity.Product;
 import com.reins.bookstore.entity.Record;
-import com.reins.bookstore.entity.Wxuser;
+
 import com.reins.bookstore.service.ManagerService;
 import com.reins.bookstore.service.ProductService;
 import com.reins.bookstore.service.RecordService;
 import com.reins.bookstore.utils.Message;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
+
 import java.util.ArrayList;
 import java.util.List;
 

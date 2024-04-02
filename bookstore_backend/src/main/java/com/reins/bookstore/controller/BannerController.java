@@ -3,16 +3,15 @@ package com.reins.bookstore.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.reins.bookstore.entity.Banner;
-import com.reins.bookstore.entity.Focus;
+
 import com.reins.bookstore.service.BannerService;
 import com.reins.bookstore.utils.Message;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+
 
 import static com.reins.bookstore.utils.Adapter.wrapBanner;
-import static com.reins.bookstore.utils.Adapter.wrapFocus;
+
 
 @RestController
 @CrossOrigin

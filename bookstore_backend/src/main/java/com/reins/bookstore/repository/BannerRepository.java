@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
 
-import static jdk.nashorn.internal.runtime.PropertyDescriptor.SET;
+
 
 public interface BannerRepository extends JpaRepository<Banner, Integer> {
     @Query(value = "SELECT * FROM banner where banner_id = ?1 ",nativeQuery = true)
