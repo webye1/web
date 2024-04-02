@@ -74,7 +74,8 @@
         props: ['router', 'route'], // 确保这两个 props 在父组件中传递了
         data() {
             return {
-                currentUserType: '',
+                currentUserType: this.$route.query.currentUserName,
+				        currentUserName: this.$route.query.currentUserName,
                 items: [], // 用于存储从后端获取的数据
                 itemsPerPage: 9, // 每页显示的项数
                 currentPage: 1, // 当前页数
@@ -83,26 +84,78 @@
                 filteredItems: [], // 用于存储筛选后的数据
                 searchKeyword: '', // 添加搜索关键词属性
                 noData: false,
+				KeyWord:''
+
             };
         },
 		mounted() {
+			this.currentUserName = this.$route.query.currentUserName;
+      this.currentUserType = this.$route.query.currentUserType;
+      console.log("un1:",this.$route.query.currentUserName);
+      console.log("ut1:",this.$route.query.currentUserType);
 			// 页面加载时从localStorage读取用户类型
-			if (localStorage.getItem('currentUserType') && localStorage.getItem('currentUserName')) {
-						this.currentUserType = localStorage.getItem('currentUserType');
-						this.currentUserName = localStorage.getItem('currentUserName');
+			if (this.$route.query.currentUserType!=null && this.$route.query.currentUserName!=null) {
+
+        console.log("un2:",this.$route.query.currentUserName);
+        console.log("ut2:",this.$route.query.currentUserType);
+						if(this.$route.query.currentUserType === "2"|| this.$route.query.currentUserType === "0"&& this.$route.query.ecurrentUserName !=''){
+
+						this.fetchProDataFromBackend();
+						}
+						else if(this.$route.query.currentUserType === "1"){
+								this.$message({
+								message: "无访问权限",
+								type: 'error'
+								});
+
+							// this.$router.push('/OpHome');
+							this.$router.push({
+							path: '/OpHome',
+							name: 'OpHome',
+							query: {
+							currentUserType: this.currentUserType,
+							currentUserName: this.currentUserName
+							}
+							});
+							return;
+						}
+						else{
+							this.$router.push('/');
+							return;
+						}
 			}
 
 			else{
-				/// 当组件挂载时，尝试从LocalStorage中获取保存的数据
-				const savedData = JSON.parse(localStorage.getItem('userData'));
-			if (savedData) {
-				// 如果有保存的数据，则恢复到组件的data中
-				this.currentUserType = savedData.currentUserType;
-				this.currentUserName = savedData.currentUserName;
-			}
+        console.log("un3:",this.$route.query.currentUserName);
+        console.log("ut3:",this.$route.query.currentUserType);
+        this.$router.push('/')
+        /*
+				if( this.currentUserType  === "1"){
+							this.$message({
+							message: "无访问权限",
+							type: 'error'
+							});
+
+						// this.$router.push('/OpHome');
+						this.$router.push({
+							path: '/OpHome',
+							name: 'OpHome',
+							query: {
+							currentUserType: this.currentUserType,
+							currentUserName: this.currentUserName
+							}
+							});
+						return;
+				}
+
+						//this.$router.push('/');*/
+						return;
+
 			}
 
-            this.fetchProDataFromBackend(); // 加载页面时获取数据
+
+
+
 
 		},
 
@@ -113,20 +166,28 @@
                 return this.items.slice(startIndex, endIndex);
             }
         },
-        mounted() {
-            // 页面加载时从localStorage读取用户类型
-            if (localStorage.getItem('currentUserType')) {
-                this.currentUserType = localStorage.getItem('currentUserType');
-            }
-            this.fetchProDataFromBackend(); // 加载页面时获取数据
-        },
+
         components: {
             Footer
         },
         methods: {
-            to(path) {
-                this.$router.push(path);
-            },
+			to(path) {
+			console.log("to_P:");
+            console.log("props UT:", this.$route.query.currentUserType);
+            console.log("props UN:", this.$route.query.currentUserName);
+            // this.$router.push(path);
+            let stringWithSlash = path;
+            this.KeyWord = stringWithSlash.replace(/\//g, '');
+
+            this.$router.push({
+					path: path,
+					name: this.KeyWord,
+					query: {
+					currentUserType: this.currentUserType,
+					currentUserName: this.currentUserName
+					}
+					});
+        },
             async fetchProDataFromBackend() {
                 try {
                     const response = await axios.get('http://47.98.58.79:8080/Product/getall');
@@ -152,9 +213,7 @@
 			filterByKeyword() {
 				if (this.searchKeyword.trim() !== '') { // 检查搜索关键词是否为空
 					// 使用关键字对快递单号进行筛选
-          console.log("关键词"+searchKeyword);
 					this.items = this.items.filter(item => item.tracking_number.includes(this.searchKeyword));
-          console.log("record"+items);
 				} else {
 					// 关键字为空时，显示全部数据
 					this.fetchProDataFromBackend();

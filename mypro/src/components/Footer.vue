@@ -50,35 +50,50 @@ export default {
     return {
       currentUserType:'',
       currentUserName:'',
-      AdminType:''
+      AdminType:'',
+      KeyWord:''
         };
     },
     mounted() {
+        this.currentUserName = this.$route.query.currentUserName;
+        this.currentUserType = this.$route.query.currentUserType;
 
             // 页面加载时从localStorage读取用户类型
-            if (localStorage.getItem('currentUserType') && localStorage.getItem('currentUserName')) {
-                this.currentUserType = localStorage.getItem('currentUserType');
-                this.currentUserName = localStorage.getItem('currentUserName');
+            if (this.$route.query.currentUserName && this.$route.query.currentUserType) {
+                this.currentUserType = this.$route.query.currentUserType;
+                this.currentUserName = this.$route.query.currentUserName;
             }
             // if (localStorage.getItem('currentUserName')) {
             //     this.currentUserName = localStorage.getItem('currentUserName');
             // }
-            else{
-             /// 当组件挂载时，尝试从LocalStorage中获取保存的数据
-             const savedData = JSON.parse(localStorage.getItem('userData'));
-            if (savedData) {
-                // 如果有保存的数据，则恢复到组件的data中
-                this.currentUserType = savedData.currentUserType;
-                this.currentUserName = savedData.currentUserName;
-            }
-        }
+            // else{
+            //  /// 当组件挂载时，尝试从LocalStorage中获取保存的数据
+            //  const savedData = JSON.parse(localStorage.getItem('userData'));
+            // if (savedData) {
+            //     // 如果有保存的数据，则恢复到组件的data中
+            //     this.currentUserType = savedData.currentUserType;
+            //     this.currentUserName = savedData.currentUserName;
+            // }
+        
+    
 
     
     },
   
     methods: {
         to(path) {
-            this.$router.push(path);
+            // this.$router.push(path);
+            let stringWithSlash = path;
+            this.KeyWord = stringWithSlash.replace(/\//g, '');
+
+            this.$router.push({
+					path: path,
+					name: this.KeyWord,
+					query: {
+					currentUserType: this.currentUserType,
+					currentUserName: this.currentUserName
+					}
+					});
         }
        
     }

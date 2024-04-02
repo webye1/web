@@ -22,12 +22,32 @@
           <button @click="selectFile(index)" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; border: none;"></button>
           <svg t="1709129721238" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2313" width="60" height="60"><path d="M913.066667 947.2H110.933333a34.133333 34.133333 0 0 1-34.133333-34.133333V110.933333a34.133333 34.133333 0 0 1 34.133333-34.133333h802.133334a34.133333 34.133333 0 0 1 34.133333 34.133333v802.133334a34.133333 34.133333 0 0 1-34.133333 34.133333z m-768-68.266667h733.866666V145.066667H145.066667z" p-id="2314" fill="#51a4db"></path><path d="M297.813333 578.133333a34.133333 34.133333 0 0 1-24.149333-58.282666l214.186667-214.101334a34.133333 34.133333 0 0 1 48.298666 48.213334l-214.186666 214.186666a34.133333 34.133333 0 0 1-24.149334 9.984z" p-id="2315" fill="#1296db"></path><path d="M512 818.602667a34.133333 34.133333 0 0 1-34.133333-34.133334V329.813333a34.133333 34.133333 0 0 1 58.282666-24.064l214.186667 214.101334a34.133333 34.133333 0 0 1-48.298667 48.298666L546.133333 412.245333v372.224a34.133333 34.133333 0 0 1-34.133333 34.133334zM756.48 273.664h-488.96a34.133333 34.133333 0 0 1 0-68.266667h488.96a34.133333 34.133333 0 0 1 0 68.266667z" p-id="2316" fill="#1296db"></path></svg>
           点击此区域上传文件
-          <input type="file" class="fileInput" style="display: none;" @change="handleFiles($event, dropArea.id)">
+          <input type="file" class="fileInput" style="display: none;" @change="handleFiles($event)">
           <!-- 文件名显示在右下角 -->
           <div class="fileName" v-if="dropArea.fileName">{{ dropArea.fileName }}</div>
           <!-- 下载按钮显示在右下角 -->
           <button class="downloadButton" @click="downloadFile(dropArea.id)" v-if="dropArea.fileName">下载</button>
         </div>
+      </div>
+      <div  class = "UpdateDiv">
+      <div class = "UpdateTitle">物流更新(柜号)</div>
+      <div class = "UpdateBody">
+        <p>柜号：</p>
+        <input type="text" v-model="cabinetNumber" placeholder="柜号">
+    
+      <div class="switcher">
+        <select id="status-switcher" v-model="selectedStatus">
+                    <option value="">所有状态</option>
+                    <option value="已入库">已入库</option>
+                    <option value="已装柜">已装柜</option>
+                    <option value="已到港">已到港</option>
+                    <option value="已到站">已到站</option>
+                    <option value="清关中">清关中</option>
+                    <option value="已装车">已装车</option>
+                </select>
+        </div>
+        <button class="UpdateSubmit" @click="updateStatus"> 更新 </button>
+      </div>
       </div>
     </div>
 
@@ -47,6 +67,7 @@
       <button @click="uploadFile(file)" :disabled="isUploadButtonDisabled(file)">
         {{ file.uploading ? '上传中' : '上传' }}
       </button>
+      <button @click="deleteFile(file)">删除</button>
 
     </div>
   </div>
@@ -67,8 +88,7 @@ export default {
     return {
       dropAreas: [
         { id: 1, title: '单号录入' },
-        { id: 2, title: '包裹入柜' },
-        { id: 3, title: '物流更新' },
+        { id: 2, title: '包裹入柜' }
       ],
       dropIndex: null,
       files: [], // 存储上传的文件信息
@@ -78,29 +98,139 @@ export default {
       routeProp: {}, // 确保传递了正确的 route 对象
       currentUserType:'',
       currentUserName:'',
+      list_P:[],
+      list_R:[],
       resultFlag:true,
-      uploadButtonDisabled: false // 控制上传按钮是否可点击
+      uploadButtonDisabled: false, // 控制上传按钮是否可点击
+      cabinetNumber: '',
+      selectedStatus: '',
+      list_C:[],
+      KeyWord:''
     };
   },
   mounted() {
+    // console.log("props UT:", this.$route.query.currentUserType);
+    // console.log("props UN:", this.$route.query.currentUserName);
       // 页面加载时从localStorage读取用户类型
-      if (localStorage.getItem('currentUserType') && localStorage.getItem('currentUserName')) {
-                    this.currentUserType = localStorage.getItem('currentUserType');
-                    this.currentUserName = localStorage.getItem('currentUserName');
+      if (this.$route.query.currentUserType && this.$route.query.currentUserName ) {
+                   
+                    
         }
               
       else{
-        /// 当组件挂载时，尝试从LocalStorage中获取保存的数据
-        const savedData = JSON.parse(localStorage.getItem('userData'));
-      if (savedData) {
-        // 如果有保存的数据，则恢复到组件的data中
-        this.currentUserType = savedData.currentUserType;
-        this.currentUserName = savedData.currentUserName;
+        this.$router.push('/');
+                    return;
       }
-      }
+      
   },
-  
   methods: {
+    updateStatus() {
+      if (this.cabinetNumber && this.selectedStatus) {
+
+        if (confirm(`是否将当前柜号(${this.cabinetNumber})的状态更新为${this.selectedStatus}？`)) {
+           const data3 = {};
+          const data4 = {};
+              data3['counter_number'] = this.cabinetNumber;
+              data3['state'] = this.selectedStatus;
+              data4['counter_number'] = this.cabinetNumber;
+              data4['update_state'] = this.selectedStatus;
+              console.log("this.cabinetNumber");
+              console.log(this.cabinetNumber);
+              console.log("this.selectedStatus");
+              console.log(this.selectedStatus);
+
+              // 添加当前操作时间的年、月、日、时、分、秒
+              const currentTime = new Date();
+              data3['op_time'] = currentTime.getFullYear() + '-' +
+                                ('0' + (currentTime.getMonth() + 1)).slice(-2) + '-' +
+                                ('0' + currentTime.getDate()).slice(-2) + ' ' +
+                                ('0' + currentTime.getHours()).slice(-2) + ':' +
+                                ('0' + currentTime.getMinutes()).slice(-2) + ':' +
+                                ('0' + currentTime.getSeconds()).slice(-2);
+              data4['time_operating'] = currentTime.getFullYear() + '-' +
+                ('0' + (currentTime.getMonth() + 1)).slice(-2) + '-' +
+                ('0' + currentTime.getDate()).slice(-2) + ' ' +
+                ('0' + currentTime.getHours()).slice(-2) + ':' +
+                ('0' + currentTime.getMinutes()).slice(-2) + ':' +
+                ('0' + currentTime.getSeconds()).slice(-2);
+              data3['manager'] = this.currentUserName;
+              data4['manager'] = this.currentUserName;
+              let cleanedCounterNumber = data3['counter_number'];
+
+              data3['counter_number'] = cleanedCounterNumber.replace(/\s*/g,'');
+
+
+          // 发送数据到后端
+          axios.put('http://47.98.58.79:8080/Product/update', data3)
+        .then((res) => {
+
+            console.log(res);
+          let it;
+          let list = [];
+
+
+          for(let i =0;i<res.data.length;i++){
+            const data4 = {};
+            data4['counter_number'] = this.cabinetNumber;
+            data4['update_state'] = this.selectedStatus;
+            data4['time_operating'] = currentTime.getFullYear() + '-' +
+              ('0' + (currentTime.getMonth() + 1)).slice(-2) + '-' +
+              ('0' + currentTime.getDate()).slice(-2) + ' ' +
+              ('0' + currentTime.getHours()).slice(-2) + ':' +
+              ('0' + currentTime.getMinutes()).slice(-2) + ':' +
+              ('0' + currentTime.getSeconds()).slice(-2);
+            data4['manager'] = this.currentUserName;
+            data4['tracking_number'] = res.data[i].tracking_number;
+            console.log(data4);
+            list.push(data4);
+
+          }
+
+
+            axios.post('http://47.98.58.79:8080/Record/insert', list)
+              .then((res) => {
+                this.$message({
+                message: "更新成功",
+                type: 'success'
+              });
+              })
+              .catch((err) => {
+                if (err.response && err.response.status === 401) {
+                  this.$message({
+                    message: "更新错误",
+                    type: 'error'
+                  });
+                } else {
+                  this.$message({
+                    message: "网络错误",
+                    type: 'error'
+                  });
+                }
+              });
+
+
+        })
+        .catch((err) => {
+          if (err.response && err.response.status === 401) {
+            this.$message({
+              message: "更新错误",
+              type: 'error'
+            });
+          } else {
+            this.$message({
+              message: "网络错误",
+              type: 'error'
+            });
+          }
+        });
+
+
+        }
+      else {
+        alert('请填写柜号并选择状态');
+      }
+    }
+    },
     getUserRole() {
       // 获取用户角色的逻辑
       // 这里只是一个示例，具体实现取决于你的应用
@@ -182,8 +312,7 @@ export default {
       // Trigger the file input
       fileInput.click();
     },
-    handleFiles(files, operationType) {
-      this.dropIndex = operationType; 
+    handleFiles(files) {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         this.files.push(file);
@@ -204,8 +333,8 @@ export default {
 
       // 处理和上传文件
       try {
-        await this.processFile(file, this.dropIndex);
-        await this.RecordUpload(file, this.dropIndex);
+        await this.processFile(file);
+        // await this.RecordUpload(file, this.dropIndex);
         file.uploadedSuccessfully = true; // 标记文件上传成功
       } catch (error) {
         console.error("上传失败:", error);
@@ -219,7 +348,9 @@ export default {
     isUploadButtonDisabled(file) {
       return this.uploadButtonDisabled || file.uploadedSuccessfully || file.uploading;
     },
-    async processFile(file, operationType) {
+    async processFile(file) {
+      this.list_P=[];
+      this.list_R=[];
       const reader = new FileReader();
       this.resultFlag = true;
 
@@ -280,29 +411,53 @@ export default {
                                     ('0' + '00').slice(-2) + ':' +
                                     ('0' + '00').slice(-2) + ':' +
                                     ('0' + '00').slice(-2);
-    }
+              }
             
           }
+          data['username'] = this.currentUserName;
+          let cleanedTrackingNumber = data['tracking_number']; 
+
+          data['tracking_number'] = cleanedTrackingNumber.replace(/\s*/g,''); 
           
+          let cleanedCounterNumber = data['counter_number']; 
+
+          data['counter_number'] = cleanedCounterNumber.replace(/\s*/g,''); 
+
+          // console.log(data['tracking_number']);
 
           // 根据操作类型决定发送数据到后端的逻辑
-          let result;
-          console.log("data['op_time']");
-          console.log(data['op_time']);
-          console.log("productdata:");
-          console.log(data);
-          if (operationType === 0) {
-            result = await this.sendInsertDataToBackend(data);
+          // let result;
+          
+          // // console.log("data['op_time']");
+          // // console.log(data['op_time']);
+          // // console.log("productdata:");
+          // // console.log(data);
+          // if (operationType === 0) {
+          //   result = await this.sendInsertDataToBackend(data);
 
-          } else if (operationType === 1 || operationType === 2) {
-            result = await this.sendUpdateDataToBackend(data);
-          }
+          // } else if (operationType === 1 || operationType === 2) {
+          //   result = await this.sendUpdateDataToBackend(data);
+          // }
+
+          // // 将每行数据的上传结果保存到数组中
+          // uploadResults.push(result);
+          // console.log("data:");
+          // console.log(data);
+            this.list_P.push(data);
+            // console.log("this.list_P");
+            // console.log(this.list_P);
+        }
+            let result;
+          // console.log("operationType");
+          // console.log(operationType);
+
+         
+            this.sendInsertDataToBackend(this.list_P,file);
 
           // 将每行数据的上传结果保存到数组中
           uploadResults.push(result);
 
-        }
-        
+
         for(let n = 0 ; n<uploadResults.length ; n++){
           if(uploadResults[n].success!=true){
             
@@ -328,32 +483,251 @@ export default {
       };
 
       reader.readAsArrayBuffer(file);
+      
+      ////////////////record 插入///////////////////
+      // const uploadResults2 = [];
+      // const reader2 = new FileReader();
+      // // this.resultFlag_r = true;
+
+      // reader2.onload = async (e) => {
+      //   const data = new Uint8Array(e.target.result);
+      //   const workbook = XLSX.read(data, { type: 'array' });
+      //   const sheetName = workbook.SheetNames[0];
+      //   const worksheet = workbook.Sheets[sheetName];
+      //   const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+      //   // 定义列名到参数名称的映射关系
+      //   const columnMapping2 = {
+      //     '产品名称': 'product_name',
+      //     '快递单号': 'tracking_number',
+      //     '柜号': 'counter_number',
+      //     '状态': 'update_state',
+      //     // 其他列名和参数名称的映射关系
+      //   };
+
+     
+
+      //   // 遍历行数据，构造请求参数并发送到后端
+      //   for (let i = 1; i < jsonData.length; i++) {
+      //     const row = jsonData[i];
+
+      //     // 如果第一个单元格为空，表示空行，直接跳过
+      //     if (!row[0]) {
+      //       continue;
+      //     }
+
+      //     const data2 = {};
+
+      //     // 根据映射关系构造请求参数
+      //     for (let j = 0; j < row.length; j++) {
+      //       const columnName = jsonData[0][j]; // 获取Excel表格的列名
+      //       const paramName = columnMapping2[columnName]; // 根据映射关系获取后端参数名
+      //       data2[paramName] = row[j]; // 使用后端参数名作为键
+      //     }
+
+      //     // 添加当前操作时间的年、月、日、时、分、秒
+      //     const currentTime = new Date();
+      //     data2['time_operating'] = currentTime.getFullYear() + '-' +
+      //                       ('0' + (currentTime.getMonth() + 1)).slice(-2) + '-' +
+      //                       ('0' + currentTime.getDate()).slice(-2) + ' ' +
+      //                       ('0' + currentTime.getHours()).slice(-2) + ':' +
+      //                       ('0' + currentTime.getMinutes()).slice(-2) + ':' +
+      //                       ('0' + currentTime.getSeconds()).slice(-2);
+
+      //     data2['manager'] = this.currentUserName;
+
+      //     // 根据操作类型决定发送数据到后端的逻辑
+      //     let result2;
+      //     // console.log("Recorddata:");
+      //     // console.log(data);
+          
+         
+      //     // result2 = await this.sendInsertDataToRecord(data2);
+        
+         
+      //     // console.log("data2:");
+      //     // console.log(data2);
+      //     //   console.log("this.list_R");
+      //     //   console.log(this.list_R);
+
+
+      //     this.list_R.push(data2);
+      //     // 将每行数据的上传结果保存到数组中
+      //     uploadResults2.push(result2);
+
+
+      //   }
+      //   console.log("this.list_R");
+      //     console.log(this.list_R);
+      //   result2 = await this.sendInsertDataToRecord(this.list_R);
+      //   // console.log("result2");
+      //   //   console.log(result2);
+
+      //         };
+
+      //   reader2.readAsArrayBuffer(file);
+
+
+
+
     },
 
 
-    async sendInsertDataToBackend(data) {
-      try {
-        console.log("sendInsertDataToBackend成功");
+    async sendInsertDataToBackend(data_p,file) {
+    
+        // console.log("sendInsertDataToBackend成功");
         // 发送数据到后端的逻辑，插入操作
-        const response = await axios.post('http://47.98.58.79:8080/Product', data);
+        axios.post('http://47.98.58.79:8080/Product/insert', data_p)
+        .then((res) => {
+        //  console.log("进入record");
+        //  console.log("res");
+        //  console.log(res);
+          //record插入
+          // const uploadResults2 = [];
+          const reader2 = new FileReader();
+          // this.resultFlag_r = true;
+
+          reader2.onload = async (e) => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+            // 定义列名到参数名称的映射关系
+            const columnMapping2 = {
+              '产品名称': 'product_name',
+              '快递单号': 'tracking_number',
+              '柜号': 'counter_number',
+              '状态': 'update_state',
+              // 其他列名和参数名称的映射关系
+            };
+
+        
+
+            // 遍历行数据，构造请求参数并发送到后端
+            for (let i = 1; i < jsonData.length; i++) {
+              const row = jsonData[i];
+
+              // 如果第一个单元格为空，表示空行，直接跳过
+              if (!row[0]) {
+                continue;
+              }
+
+              const data2 = {};
+
+              // 根据映射关系构造请求参数
+              for (let j = 0; j < row.length; j++) {
+                const columnName = jsonData[0][j]; // 获取Excel表格的列名
+                const paramName = columnMapping2[columnName]; // 根据映射关系获取后端参数名
+                data2[paramName] = row[j]; // 使用后端参数名作为键
+              }
+
+              // 添加当前操作时间的年、月、日、时、分、秒
+              const currentTime = new Date();
+              data2['time_operating'] = currentTime.getFullYear() + '-' +
+                                ('0' + (currentTime.getMonth() + 1)).slice(-2) + '-' +
+                                ('0' + currentTime.getDate()).slice(-2) + ' ' +
+                                ('0' + currentTime.getHours()).slice(-2) + ':' +
+                                ('0' + currentTime.getMinutes()).slice(-2) + ':' +
+                                ('0' + currentTime.getSeconds()).slice(-2);
+
+              data2['manager'] = this.currentUserName;
+
+              // 根据操作类型决定发送数据到后端的逻辑
+              // let result2;
+              // console.log("Recorddata:");
+              // console.log(data);
+              
+            
+              // result2 = await this.sendInsertDataToRecord(data2);
+            
+            
+              // console.log("data2[tracking number]:");
+              // console.log(data2['tracking_number']);
+              //   console.log("this.list_R");
+              //   console.log(this.list_R);
+
+              let cleanedTrackingNumber = data2['tracking_number']; 
+
+              data2['tracking_number'] = cleanedTrackingNumber.replace(/\s/g, ''); 
+
+              // console.log(data2['tracking_number']);
+
+              // console.log("data2[tracking number]:");
+              // console.log(data2['tracking_number']);
+
+              // console.log("读取data中");
+              this.list_R.push(data2);
+              // 将每行数据的上传结果保存到数组中
+              // uploadResults2.push(result2);
+
+
+            }
+            // console.log("this.list_R_删除前");
+            // console.log(this.list_R);
+
+            let i = 0;
+            for( i = res.data.length-1;i>=0;i--){//遍历product_list插入的返回值
+                if(res.data[i] == "Product Update!"){
+                  // console.log("update");
+                }
+                if(res.data[i] =="Product Insert!"){
+                  // console.log("insert");
+
+                }
+              if(res.data[i] =="Product Error!"){
+                // console.log("error");
+                this.list_R.splice(i,1);//record_list删除
+              }
+              }
+
+            // console.log("this.list_R删除后");
+            // console.log(this.list_R);
+            result2 = await this.sendInsertDataToRecord(this.list_R);
+            // console.log("result_R");
+            //   console.log(result2);
+
+            };
+
+            reader2.readAsArrayBuffer(file);
+            this.$message({ 
+              message: "上传成功",
+              type: 'success'
+            });
+        })
+        .catch((err) => {
+          if (err.response && err.response.status === 401) {
+            this.$message({ 
+              message: "上传错误",
+              type: 'error'
+            });
+          } else {
+            this.$message({ 
+              message: "网络错误",
+              type: 'error'
+            });
+          }
+        });
         // console.log("InsertDate:");
         // console.log(data);
-        return { success: response.product_id !== -1, response };
-      } catch (error) {
-        return { success: false, error };
-      }
+        // let res_op = [];//遍历response,如果i为error则删除list_R对应的i,删除完后继续插入
+        //record插入代码
+        
+
+
     },
 
-    async sendUpdateDataToBackend(data) {
-      console.log("sendUpdateDataToBackend成功");
-      try {
-        // 发送数据到后端的逻辑，更新操作
-        const response = await axios.put('http://47.98.58.79:8080/Product', data);
-        return { success: response.product_id !== -1, response };
-      } catch (error) {
-        return { success: false, error };
-      }
-    },
+    // async sendUpdateDataToBackend(data) {
+    //   console.log("sendUpdateDataToBackend成功");
+    //   try {
+    //     // 发送数据到后端的逻辑，更新操作
+    //     const response = await axios.put('http://47.98.58.79:8080/Product', data);
+    //     return { success: response.product_id !== -1, response };
+    //   } catch (error) {
+    //     return { success: false, error };
+    //   }
+    // },
 
     showUploadResult(uploadResults) {
       const failedUploads = uploadResults.filter(result => !result.success);
@@ -394,112 +768,116 @@ export default {
     }
    },
    //操作记录
-   async RecordUpload(file, operationType) {
-      const reader = new FileReader();
-      this.resultFlag = true;
+  //  async RecordUpload(file, operationType) {
+  //     const reader = new FileReader();
+  //     this.resultFlag = true;
 
-      reader.onload = async (e) => {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+  //     reader.onload = async (e) => {
+  //       const data = new Uint8Array(e.target.result);
+  //       const workbook = XLSX.read(data, { type: 'array' });
+  //       const sheetName = workbook.SheetNames[0];
+  //       const worksheet = workbook.Sheets[sheetName];
+  //       const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-        // 定义列名到参数名称的映射关系
-        const columnMapping = {
-          '产品名称': 'product_name',
-          '快递单号': 'tracking_number',
-          '柜号': 'counter_number',
-          '状态': 'update_state',
-          // 其他列名和参数名称的映射关系
-        };
+  //       // 定义列名到参数名称的映射关系
+  //       const columnMapping = {
+  //         '产品名称': 'product_name',
+  //         '快递单号': 'tracking_number',
+  //         '柜号': 'counter_number',
+  //         '状态': 'update_state',
+  //         // 其他列名和参数名称的映射关系
+  //       };
 
-        // 定义一个数组来保存每行数据的上传结果
-        const uploadResults = [];
+  //       // 定义一个数组来保存每行数据的上传结果
+  //       const uploadResults = [];
 
-        // 遍历行数据，构造请求参数并发送到后端
-        for (let i = 1; i < jsonData.length; i++) {
-          const row = jsonData[i];
+  //       // 遍历行数据，构造请求参数并发送到后端
+  //       for (let i = 1; i < jsonData.length; i++) {
+  //         const row = jsonData[i];
 
-          // 如果第一个单元格为空，表示空行，直接跳过
-          if (!row[0]) {
-            continue;
-          }
+  //         // 如果第一个单元格为空，表示空行，直接跳过
+  //         if (!row[0]) {
+  //           continue;
+  //         }
 
-          const data = {};
+  //         const data = {};
 
-          // 根据映射关系构造请求参数
-          for (let j = 0; j < row.length; j++) {
-            const columnName = jsonData[0][j]; // 获取Excel表格的列名
-            const paramName = columnMapping[columnName]; // 根据映射关系获取后端参数名
-            data[paramName] = row[j]; // 使用后端参数名作为键
-          }
+  //         // 根据映射关系构造请求参数
+  //         for (let j = 0; j < row.length; j++) {
+  //           const columnName = jsonData[0][j]; // 获取Excel表格的列名
+  //           const paramName = columnMapping[columnName]; // 根据映射关系获取后端参数名
+  //           data[paramName] = row[j]; // 使用后端参数名作为键
+  //         }
 
-          // 添加当前操作时间的年、月、日、时、分、秒
-          const currentTime = new Date();
-          data['time_operating'] = currentTime.getFullYear() + '-' +
-                            ('0' + (currentTime.getMonth() + 1)).slice(-2) + '-' +
-                            ('0' + currentTime.getDate()).slice(-2) + ' ' +
-                            ('0' + currentTime.getHours()).slice(-2) + ':' +
-                            ('0' + currentTime.getMinutes()).slice(-2) + ':' +
-                            ('0' + currentTime.getSeconds()).slice(-2);
+  //         // 添加当前操作时间的年、月、日、时、分、秒
+  //         const currentTime = new Date();
+  //         data['time_operating'] = currentTime.getFullYear() + '-' +
+  //                           ('0' + (currentTime.getMonth() + 1)).slice(-2) + '-' +
+  //                           ('0' + currentTime.getDate()).slice(-2) + ' ' +
+  //                           ('0' + currentTime.getHours()).slice(-2) + ':' +
+  //                           ('0' + currentTime.getMinutes()).slice(-2) + ':' +
+  //                           ('0' + currentTime.getSeconds()).slice(-2);
 
-          data['manager'] = this.currentUserName;
+  //         data['manager'] = this.currentUserName;
 
-          // 根据操作类型决定发送数据到后端的逻辑
-          let result;
-          // console.log("Recorddata:");
-          // console.log(data);
+  //         // 根据操作类型决定发送数据到后端的逻辑
+  //         let result;
+  //         // console.log("Recorddata:");
+  //         // console.log(data);
           
          
-          result = await this.sendInsertDataToRecord(data);
-          // console.log("result");
-          // console.log(result);
+  //         result = await this.sendInsertDataToRecord(data);
+  //         // console.log("result");
+  //         // console.log(result);
          
 
-          // 将每行数据的上传结果保存到数组中
-          uploadResults.push(result);
+  //         // 将每行数据的上传结果保存到数组中
+  //         uploadResults.push(result);
 
-        }
+  //       }
         
-        for(let n = 0 ; n<uploadResults.length ; n++){
-          if(uploadResults[n].success!=true){
+  //       for(let n = 0 ; n<uploadResults.length ; n++){
+  //         if(uploadResults[n].success!=true){
             
-            // this.resultFlag=false;
-            // this.$message({ // 使用 this.$message 并且是小写的 m
-            //   message: '第'+(n-1)+"行导入错误",
-            //   type: 'error'
-            // });
-          }
-        }
-        if(this.resultFlag === true){
-                // 输出上传成功消息
-          // this.$message({ // 使用 this.$message 并且是小写的 m
-          //   message: '所有文件上传成功',
-          //   type: 'success'
-          // });
-          // this.files = [];
-        }
+  //           // this.resultFlag=false;
+  //           // this.$message({ // 使用 this.$message 并且是小写的 m
+  //           //   message: '第'+(n-1)+"行导入错误",
+  //           //   type: 'error'
+  //           // });
+  //         }
+  //       }
+  //       if(this.resultFlag === true){
+  //               // 输出上传成功消息
+  //         // this.$message({ // 使用 this.$message 并且是小写的 m
+  //         //   message: '所有文件上传成功',
+  //         //   type: 'success'
+  //         // });
+  //         // this.files = [];
+  //       }
 
-        // this.files = [];
+  //       // this.files = [];
 
         
-      };
+  //     };
 
-      reader.readAsArrayBuffer(file);
-    },
+  //     reader.readAsArrayBuffer(file);
+  //   },
 
-    async sendInsertDataToRecord(data) {
+    async sendInsertDataToRecord(list) {
+
+       console.log("R接收到的list:");
+          console.log(list);
       try {
         console.log("sendInsertDataToRecord成功");
         // 发送数据到后端的逻辑，插入操作
-        const response = await axios.post('http://47.98.58.79:8080/Record', data);
-        return { success: response.product_id !== -1, response };
+        const response = await axios.post('http://47.98.58.79:8080/Record/insert', list);
+        console.log(response);
+        return { success: response.record_id !== -1, response };
       } catch (error) {
         return { success: false, error };
       }
     },
-
+    
     downloadExcel(dropArea) {
       // 下载Excel文件的逻辑
       window.open(dropArea.fileUrl);
@@ -511,6 +889,12 @@ export default {
       link.download = file.name;
       link.click();
       URL.revokeObjectURL(url);
+    },
+    deleteFile(file) {
+        const index = this.files.indexOf(file);
+        if (index !== -1) {
+            this.files.splice(index, 1);
+        }
     },
     downloadExcel() {
       // 创建Excel数据
@@ -568,6 +952,17 @@ export default {
 	align-items: center;
   width: 100%;
 }
+
+.wrapper .UpdateDiv{
+  
+  text-align: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+  width: 100%;
+}
+
+
 
 .wrapper  .fileName {
   position: absolute;
@@ -636,8 +1031,15 @@ export default {
 	margin-top: 3%;
 }
 
+.wrapper .UpdateTitle{
+  color: #333;
+  font-size: 6mm;
+	margin-top: 3%;
+}
 
-.wrapper  .dropArea {
+
+.wrapper  .dropArea,
+.wrapper .UpdateBody{
   width: 50%;
   height: 25vh;
   border: 2px dashed #ccc;
@@ -651,8 +1053,54 @@ export default {
   color: grey;
 }
 
+.wrapper .UpdateBody{
+  flex-direction: row;
+}
+
+.wrapper .UpdateBody p{
+  flex: 0.1;
+  font-size: 4mm;
+  font-weight:500;
+}
+
+.wrapper .UpdateBody .switcher{
+  flex: 0.3;
+  height: 5vh;
+}
+
+.wrapper .UpdateBody #status-switcher{
+  height: 100%;
+  width: 50%;
+  padding: 1vh;
+  border: 1px solid #007bff;
+  border-radius: 5px;
+}
+
+.wrapper .UpdateBody input{
+  flex: 0.3;
+  height: 4.5vh;
+  padding: auto;
+  width: 50%;
+  font-size: 4mm;
+}
+
+.wrapper .UpdateBody button{
+  flex: 0.15;
+  height: 5vh;
+  border: none;
+  outline: none;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 10px;
+}
+
 .wrapper .dropArea svg{
 	margin-top: 10px;
+}
+
+.wrapper .UpdateBody button:hover{
+  background-color: #a9cdf6;
+  color: #007bff;
 }
 
 .wrapper .dropArea:hover {

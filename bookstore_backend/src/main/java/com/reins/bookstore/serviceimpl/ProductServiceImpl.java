@@ -64,5 +64,11 @@ public class ProductServiceImpl implements ProductService {
         return product;
     }
 
+    @Override
+    public List<Product> getOneProductbyc(String counterNumber) {
+        List<Product> product = productDao.getOneProductbyc(counterNumber);
+        return product;
+    }
+
 
 }

@@ -58,4 +58,10 @@ public class ProductDaoImpl implements ProductDao {
         Product product = productRepository.getOneProduct(trackingNumber);
         return product;
     }
+
+    @Override
+    public List<Product> getOneProductbyc(String counterNumber) {
+        List<Product> product = productRepository.getOneProductbyc(counterNumber);
+        return product;
+    }
 }

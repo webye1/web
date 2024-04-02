@@ -31,7 +31,6 @@ public class SessionValidateInterceptor extends HandlerInterceptorAdapter {
             Msg msg = MsgUtil.makeMsg(MsgCode.NOT_LOGGED_IN_ERROR);
             sendJsonBack(response, msg);
             return false;
-
         }
         System.out.println("Success");
         return true;

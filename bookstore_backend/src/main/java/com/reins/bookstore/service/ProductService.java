@@ -17,4 +17,5 @@ public interface ProductService {
 
     Product getOneProduct(String trackingNumber);
 
+    List<Product> getOneProductbyc(String counterNumber);
 }

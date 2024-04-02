@@ -93,11 +93,34 @@
 			  });
 			 
 			  this.$nextTick(() => {
-				this.$router.push('/OpHome');
+				// this.$router.push('/OpHome');
+				this.$router.push({
+					path: '/OpHome',
+					name: 'OpHome',
+					query: {
+					currentUserType: this.currentUserType,
+					currentUserName: this.currentUserName
+					}
+					});
 				if (managerType === 1 || managerType === 0) {
-				  this.$router.push('/OpHome');
+				//   this.$router.push('/OpHome');
+				  this.$router.push({
+					path: '/OpHome',
+					name: 'OpHome',
+					query: {
+					currentUserType: this.currentUserType,
+					currentUserName: this.currentUserName
+					}
+					});
 				} else if (managerType === 2) {
-				  this.$router.push('/Data');
+					this.$router.push({
+					path: '/Data',
+					name: 'Data',
+					query: {
+					currentUserType: this.currentUserType,
+					currentUserName: this.currentUserName
+					}
+					});
 				}
 			  });
 			} else {
@@ -124,7 +147,9 @@
 			this.loginProcessing = false; // Re-enable the login button
 		  });
 	  }
+	
 	},
+	
 	components: {
 	  Footer
 	}
@@ -193,7 +218,7 @@
 
 .button-login{
 	width: 20%;
-	height: 6vh;
+	height: 7vh;
 	position: absolute;
 	margin-right: 3%;
 	margin-left:40.2%;
@@ -201,6 +226,7 @@
 	border: none;
 	border-radius: 5px;
 	background-color: #282F87; /* 设置背景色 */
+	
 	
 }
 
@@ -214,8 +240,9 @@
 	background-color: transparent;
 	border: none;
 	color: #fff; /* 设置文字颜色 */
-	margin-top: 2%;
-	margin-left: 40%;
+	border: 1px solid #fff;
+	height: 100%;
+	width: 100%;
 }
 
 </style>

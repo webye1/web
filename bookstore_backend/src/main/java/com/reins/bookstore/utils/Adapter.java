@@ -125,6 +125,18 @@ public class Adapter {
 
     }
 
+    public static JSONObject wrapBanner(Banner banner) {
+        JSONObject json = new JSONObject();
+        if (banner == null) {
+            json.put("banner_id", -1);
+            json.put("url", null);
+            return json;
+        }
+        json.put("banner_id", banner.getId());
+        json.put("url", banner.getUrl());
+        return json;
+    }
+
 
 }
 

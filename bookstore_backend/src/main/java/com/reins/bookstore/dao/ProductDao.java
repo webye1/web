@@ -16,4 +16,6 @@ public interface ProductDao {
     void deleteOneProduct(int id);
 
     Product getOneProduct(String trackingNumber);
+
+    List<Product> getOneProductbyc(String counterNumber);
 }

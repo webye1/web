@@ -3,8 +3,10 @@ package com.reins.bookstore.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.reins.bookstore.entity.Manager;
 import com.reins.bookstore.entity.Product;
+import com.reins.bookstore.entity.Record;
 import com.reins.bookstore.service.ManagerService;
 import com.reins.bookstore.service.ProductService;
+import com.reins.bookstore.service.RecordService;
 import com.reins.bookstore.utils.Message;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +25,10 @@ import static com.reins.bookstore.utils.Adapter.wrapProduct;
 @RequestMapping("/Product")
 public class ProductController {
     ProductService productService;
-    public ProductController(ProductService productService) {
+    RecordService recordService;
+    public ProductController(ProductService productService,RecordService recordService) {
         this.productService = productService;
+        this.recordService = recordService;
     }
 
     @RequestMapping("/getall")
@@ -50,13 +54,62 @@ public class ProductController {
         return wrapProduct(product);
     }
 
+    @RequestMapping("/update")
+    public List<JSONObject> updateProduct(@RequestBody JSONObject jsonObject
+    ) {
+
+        List<JSONObject> results = new ArrayList<>();
+        String counter_number = jsonObject.getString("counter_number");
+        String state = jsonObject.getString("state");
+        String op_time = jsonObject.getString("op_time");
+        List<Product> plist = productService.getOneProductbyc(counter_number);
+        for (Product it :plist) {
+
+            it.setOptime(op_time);
+            it.setState(state);
+            JSONObject res = new JSONObject();
+
+            res = updateOneProduct(wrapProduct(it));
+            if (res.getInteger("product_id") == -1){
+                results.add(res);
+                System.out.println("-1");
+            }else{
+
+                results.add(res);
+                System.out.println("ok");
+
+
+            }
+        }
+
+
+
+
+
+        return results;
+
+    }
+
+
     @RequestMapping("/insert")
     public List<String> insertAllProduct(@RequestBody List<JSONObject> jsonObjectList
     ) {
         List<String> results = new ArrayList<>();
         for (JSONObject jsonObject :jsonObjectList){
+
+            String tracking_number = jsonObject.getString("tracking_number");
+            Product p = productService.getOneProduct(tracking_number);
+
             JSONObject res = new JSONObject();
-            res = insertOneProduct(jsonObject);
+            int i = -1;
+            if (p != null ) {//存在
+                res = updateOneProduct(jsonObject);
+                i = 0;
+            }
+            else {
+                res = insertOneProduct(jsonObject);
+                i = 1;
+            }
             System.out.println("json"+res);
             System.out.println("pid"+(res.getInteger("product_id")));
 
@@ -64,8 +117,15 @@ public class ProductController {
                 results.add("Product Error!");
                 System.out.println("-1");
             }else{
-                results.add("Product OK!");
-                System.out.println("ok");
+                if (i==0){
+                    results.add("Product Update!");
+                    System.out.println("ok");
+                }
+                if(i == 1){
+                    results.add("Product Insert!");
+                    System.out.println("ok");
+                }
+
             }
 
         }
@@ -119,10 +179,12 @@ public class ProductController {
         return wrapProduct(product1);
     }
 
+
+
+
     @PutMapping
     public JSONObject updateOneProduct(@RequestBody JSONObject jsonObject
     ) {
-
         String product_name = jsonObject.getString("product_name");
         String proxy = jsonObject.getString("proxy");
         String counter_number = jsonObject.getString("counter_number");
@@ -132,16 +194,18 @@ public class ProductController {
         Float weight = jsonObject.getFloat("weight");
         String state = jsonObject.getString("state");
         String op_time = jsonObject.getString("op_time");
-
+        Product p = new Product();
         //去focus表中找id，有的话继续，没有的话返回
+        System.out.println("cn:"+counter_number);
 
-        System.out.println("cn:"+counter_number+"tn:"+tracking_number);
-        Product p = productService.getOneProduct(tracking_number);
+        p = productService.getOneProduct(tracking_number);
+
+
         if (p == null ) {
             JSONObject res = new JSONObject();
             res.put("code", -1);
-            res.put("message", "Access denied.");
-            System.out.println("pgetonenull");
+            res.put("message", "Not found this product.");
+            System.out.println("Not found this product");
             return wrapProduct(p);
         }
 
@@ -150,7 +214,7 @@ public class ProductController {
             JSONObject res = new JSONObject();
             res.put("code", -1);
             res.put("message", "Access denied.");
-            System.out.println("p1getonenull");
+            System.out.println("Not found this product id");
             return wrapProduct(p1);
         }
         Product product = new Product();
@@ -196,30 +260,43 @@ public class ProductController {
         }else{
             product.setOptime(op_time);
         }
+        product.setStoreroomtime(p.getStoreroomtime());
+        product.setFinishtime(p.getFinishtime());
+        product.setClearancetime(p.getClearancetime());
+        product.setTrucktime((p.getTrucktime()));
+        product.setStationtime((p.getStationtime()));
+        product.setPorttime(p.getPorttime());
+        product.setCompartmenttime(p.getCompartmenttime());
+
 
         if (state == null ){
             product.setState(p.getState());
             System.out.println("statenull:"+state);
             System.out.println("pstatenull:"+p.getState());
         }else{
-            if (!state.equals(p.getState())){//状态变
+            System.out.println("statenotnull:"+state);
+            System.out.println("pstatenotnull:"+p.getState());
 
-                System.out.println("statenull:"+state);
-                System.out.println("pstatenull:"+p.getState());
+
+                System.out.println("statenote:"+state);
+                System.out.println("pstatenote:"+p.getState());
                 if (state.equals("已装柜")){
                     product.setCompartmenttime(op_time);
+                } else if (state.equals("已入库")) {
+                    product.setStoreroomtime(op_time);
                 } else if (state.equals("已到港")) {
                     product.setPorttime(op_time);
                 } else if (state.equals("已到站")) {
                     product.setStationtime(op_time);
-                } else if (state.equals("已清关")) {
+                } else if (state.equals("清关中")) {
                     product.setClearancetime(op_time);
                 } else if (state.equals("已装车")) {
                     product.setTrucktime(op_time);
                 } else if (state.equals("已完成")) {
                     product.setFinishtime(op_time);
+                    product.setCounternumber(null);//完成的柜号清空
                 }
-            }
+
             product.setState(state);
 
         }
@@ -227,9 +304,6 @@ public class ProductController {
         System.out.println("productpostupdate");
         Product product1 = productService.updateOneProduct(product);
         System.out.println(product1);
-        JSONObject res = new JSONObject();
-        res.put("code", -1);
-        res.put("message", "Access denied.");
         return wrapProduct(product1);
     }
 

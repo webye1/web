@@ -41,7 +41,7 @@
         </li>
       </ul>
       <button class="log-out" @click="to('/Index')">Log Out </button>
-      
+
 
       <el-dialog title="输入新密码" :visible.sync="dialogVisible" width="30%">
         <el-form :model="passwordForm" ref="passwordForm" label-width="80px">
@@ -67,24 +67,27 @@ export default {
   name: 'UserCorrent',
   data() {
     return {
-      currentUserType: '',
-      currentUserName: '',
+      currentUserType: this.$route.query.currentUserType,
+      currentUserName: this.$route.query.currentUserName,
       editingPassword: false,
       newPassword: '',
       dialogVisible: false,
       passwordForm: {
         password: ''
-      }
+      },
+      KeyWord:''
     };
   },
   mounted() {
     // 页面加载时从localStorage读取用户类型
-    if (localStorage.getItem('currentUserType') && localStorage.getItem('currentUserName')) {
+    if (this.currentUserName && this.currentUserType) {
                   this.currentUserType = localStorage.getItem('currentUserType');
                   this.currentUserName = localStorage.getItem('currentUserName');
       }
-            
+
     else{
+      this.$router.push('/');
+      return;
       /// 当组件挂载时，尝试从LocalStorage中获取保存的数据
       const savedData = JSON.parse(localStorage.getItem('userData'));
     if (savedData) {
@@ -93,17 +96,28 @@ export default {
       this.currentUserName = savedData.currentUserName;
     }
     }
-    
+
   },
-  
-  
+
+
   components: {
     Footer
   },
   methods: {
-   
+
     to(path) {
-            this.$router.push(path);
+            // this.$router.push(path);
+            let stringWithSlash = path;
+            this.KeyWord = stringWithSlash.replace(/\//g, '');
+
+            this.$router.push({
+					path: path,
+					name: this.KeyWord,
+					query: {
+					currentUserType: this.currentUserType,
+					currentUserName: this.currentUserName
+					}
+					});
         },
     toggleEditPassword() {
       this.dialogVisible = true;
@@ -127,7 +141,7 @@ export default {
           else{
             this.$message.error('密码修改失败');
           }
-         
+
         })
         .catch(error => {
 			    console.log(error);
@@ -147,10 +161,10 @@ export default {
 }
 </script>
 
-  
-  
-  
-  
+
+
+
+
 
 <style scoped>
 
@@ -200,7 +214,7 @@ export default {
 	color: #000;
 	margin-top: 18px;
 	margin-left: -40px;
-	
+
 }
 
 .user-information{
@@ -209,7 +223,7 @@ export default {
 	height: 600px;
 	margin-left: 22%;
 	margin-top: 1.8%;
-	
+
 }
 
 .user-information .user-image {
@@ -262,7 +276,7 @@ export default {
 	margin-left: 38%;
 	border: #e7e7e7;
 	margin-bottom: 10px;
-	
+
 }
 
 .user-information-form-box li .content{

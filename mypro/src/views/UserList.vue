@@ -15,9 +15,9 @@
 		<Footer></Footer>
 		<svg :class="{ 'active': $route.path === '/Data' }"
 						@click="to('/Data')" t="1709382634550" id="lastPage" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2321" width="20" height="20"><path d="M152.746667 546.133333a34.133333 34.133333 0 0 1-24.149334-58.282666l247.466667-247.466667a34.133333 34.133333 0 0 1 48.298667 48.298667l-247.466667 247.466666A34.133333 34.133333 0 0 1 152.746667 546.133333z" p-id="2322"></path><path d="M400.384 793.6a34.133333 34.133333 0 0 1-24.149333-9.984l-247.466667-247.466667A34.133333 34.133333 0 0 1 152.746667 477.866667h718.506666a34.133333 34.133333 0 0 1 0 68.266666H235.178667l189.354666 189.354667A34.133333 34.133333 0 0 1 400.384 793.6z" p-id="2323"></path></svg>
-			
+
 		<div class="list_all">
-			
+
 			<p class="user-wx-title">小程序用户列表(200)</p>
 			<div class="user-list">
 				<ul class="user-wx-list">
@@ -34,13 +34,13 @@
 				</svg>
 				<input type="text" id="searchInput" placeholder="请输入用户名" v-model="searchManagerName" @keypress="onKeyPress">
 
-				
+
 			</div>
 			<div class="user-web-list">
 		<div class="left-selector">
 			<p class="admin-type1">一级管理员</p>
 			<p class="admin-type1-in">可进行excel文件上传及个人操作记录查看</p>
-			<button class="add-admin" @click="checkMagType(1)">添加</button>
+			<button class="add-admin" :disabled="!LoginCheck" @click="checkMagType(1)">添加</button>
 			<button class="delete-admin1" @click="showDeleteModal = true">删除</button>
 			<div class="admin-left">
 				<div class="scrollable-container">
@@ -61,7 +61,7 @@
 		<div class="right-selector">
 			<p class="admin-type1">二级管理员</p>
 			<p class="admin-type1-in">可查看所有操作记录以及包裹记录</p>
-			<button class="add-admin2" @click="checkMagType(2)">添加</button>
+			<button class="add-admin2" @click="checkMagType(2)" :disabled="!LoginCheck">添加</button>
 			<button class="delete-admin2" @click="showDeleteModal = true">删除</button>
 			<div class="admin-right">
 				<div class="scrollable-container">
@@ -85,18 +85,18 @@
 
 			<div class="banner-upload">
 				<a>用户端banner上传</a>
-				<p>点击上传jpg/png文件,尺寸为1600*900px，大小不超过10M 
+				<p>点击上传jpg/png文件,尺寸为1600*900px，大小不超过10M
 				</p>
-				
+
 				<input type="file" id="fileInput" accept="image/jpeg, image/png"  @change="handleFileChange">
-				<button @click="uploadImage()" class="img_upload">上传</button>
+				<button @click="uploadImage()" class="img_upload" :disabled="!LoginCheck">上传</button>
 				<button @click="deleteImage()" class="img_delete">删除</button>
 				<!-- <button @click="getImage()" class="img_get">获取</button>
 				<img :src = "ImageUrl" class="img-url"> -->
 
 			</div>
 			<!-- 模态框 -->
-			
+
 			<!-- 添加管理员模态框 -->
 			<div :class="{ 'modal-overlay': showAddModal }">
 				<div v-if="showAddModal" class="addManagerModal">
@@ -129,7 +129,7 @@
 	import axios from 'axios';
 	import Vue from 'vue'
 	import VScaleScreen from 'v-scale-screen'
-	
+
 	Vue.use(VScaleScreen)
 
     export default {
@@ -137,10 +137,11 @@
 		props: ['router', 'route'], // 确保这两个 props 在父组件中传递了
         data() {
 			return {
-			currentUserType:'',
+			currentUserType:this.$route.query.currentUserType,
+			currentUserName:this.$route.query.currentUserType,
 			wxUserList: [],
 			userList:[],
-			
+
 			leftUserList: [],
 			rightUserList: [],
 			showAddModal: false,
@@ -163,34 +164,51 @@
 			searchManagerName: '' ,// 添加搜索管理员名字属性
 			file:[],
 			addType:'',
-			editName:''
+			editName:'',
+			LoginCheck: false,
+			KeyWord:''
 			// ImageUrl:''
 			};
 		},
 		mounted() {
+			//console.log("props UT:", this.$route.query.currentUserType);
+    		//console.log("props UN:", this.$route.query.currentUserName);
 			// 页面加载时从localStorage读取用户类型
-			if (localStorage.getItem('currentUserType') && localStorage.getItem('currentUserName')) {
-						this.currentUserType = localStorage.getItem('currentUserType');
-						this.currentUserName = localStorage.getItem('currentUserName');
+			if (this.$route.query.currentUserType && this.$route.query.currentUserName) {
+
+						if(this.$route.query.currentUserType === ''|| this.$route.query.currentUserName ===''){
+							this.LoginCheck = false;
+							this.$router.push('/');
+							return;
+						}else if (this.$route.query.currentUserType === "0"){
+							this.LoginCheck = true;
+							this.fetchUserList();
+							this.fetchManagerList() ;
+						}
+						else{
+							this.LoginCheck = false;
+							this.$message({
+								message: "无访问权限",
+								type: 'error'
+								});
+						}
 			}
-				
+
 			else{
-				/// 当组件挂载时，尝试从LocalStorage中获取保存的数据
-				const savedData = JSON.parse(localStorage.getItem('userData'));
-			if (savedData) {
-				// 如果有保存的数据，则恢复到组件的data中
-				this.currentUserType = savedData.currentUserType;
-				this.currentUserName = savedData.currentUserName;
+
+			this.LoginCheck = false;
+			this.$router.push('/');
+			return;
+
 			}
-			}
-			this.fetchUserList();
-			this.fetchManagerList() ;
+
+
 		},
         components: {
             Footer
         },
 		computed: {
-			
+
 			filteredLeftUserList() {
 			// 根据搜索管理员名字过滤左侧管理员列表
 			return this.leftUserList.filter(webuser => {
@@ -267,7 +285,7 @@
             fetchUserList() {
 			axios.get('http://47.98.58.79:8080/Wxuser/getall') // 假设后端接口为 '/api/users'
 				.then(response => {
-				
+
 				this.wxUserList = response.data; // 假设返回的数据格式为 [{ id: 1, avatar: 'path/to/avatar.jpg', username: 'username1' }, ...]
 				// console.log(response.data);
 				})
@@ -278,7 +296,7 @@
 			fetchManagerList() {
 			axios.get('http://47.98.58.79:8080/Manager/getall') // 假设后端接口为 '/api/users'
 				.then(response => {
-				
+
 				 // 获取所有管理员列表
 				 this.userList = response.data;
 				// 分别筛选类型为 1 和类型为 2 的管理员
@@ -290,9 +308,21 @@
 				console.error('Failed to fetch user list:', error);
 				});
 			},
+
 			to(path) {
-            this.$router.push(path);
-        	},
+            // this.$router.push(path);
+            let stringWithSlash = path;
+            this.KeyWord = stringWithSlash.replace(/\//g, '');
+
+            this.$router.push({
+					path: path,
+					name: this.KeyWord,
+					query: {
+					currentUserType: this.$route.query.currentUserType,
+					currentUserName: this.$route.query.currentUserName
+					}
+					});
+        },
 			addManager() {
 				if(this.addType!=3){
 					// 发送添加管理员请求
@@ -305,11 +335,11 @@
 						message: '添加成功',
 						type: 'success'
 					});
-					
+
 					setTimeout(() => {
 						this.fetchManagerList(); // 调用获取数据的方法方法
                		 }, 2000);
-					
+
 					}
 					else{
 						this.$message({
@@ -318,7 +348,7 @@
 						});
 
 					}
-					
+
 					this.newManager.password = '';
 					this.newManager.username = '';
 					this.showAddModal = false;
@@ -348,7 +378,7 @@
 						message: '修改成功',
 						type: 'success'
 					});
-					
+
 					setTimeout(() => {
 						this.fetchManagerList(); // 调用获取数据的方法方法
                		 }, 2000);
@@ -360,7 +390,7 @@
 						});
 
 					}
-					
+
 					this.newManager.password = '';
 					this.newManager.username = '';
 					this.showAddModal = false;
@@ -375,10 +405,10 @@
 					this.newManager.password = '';
 					this.newManager.username = '';
 					});
-					
+
 
 				}
-				
+
 				},
 				deleteManagers() {
 					// console.log("selectedManagers:");
@@ -405,19 +435,19 @@
 									// 	type: 'success'
 									// });
 									}
-									
-										
+
+
 										// this.deleteListFlag=true;
-										
+
 										// this.$message({
 										// message: '删除失败',
 										// type: 'error'
 										// });
 										// console.log('删除成功', response.data);
 
-									
-									
-									
+
+
+
 									this.showDeleteModal = false;
 									})
 									.catch(error => {
@@ -438,7 +468,7 @@
 					setTimeout(() => {
 						this.fetchManagerList(); // 调用获取数据的方法方法
                		 }, 2000);
-					
+
 					}
 					else{
 						this.$message({
@@ -446,11 +476,11 @@
 										type: 'error'
 									});
 					}
-					
+
 				},
 				uploadImage() {
 					// 获取文件对象
-					const file = this.file; 
+					const file = this.file;
 
 					// 检查文件大小是否小于10MB
 					if (file.size > 10 * 1024 * 1024) { // 将文件大小转换为字节
@@ -518,12 +548,12 @@
 										type: 'error'
 									});
 							}
-						
-						
+
+
 						})
 						.catch(error => {
 								console.log(error);
-						
+
 						});
 				},
 				// getImage(){
@@ -532,12 +562,12 @@
 				// 			console.log("response:");
 				// 			console.log(response);
 				// 			this.ImageUrl = response.data.url;
-						
-						
+
+
 				// 		})
 				// 		.catch(error => {
 				// 				console.log(error);
-						
+
 				// 		});
 				// }
 
@@ -567,7 +597,7 @@
 	position: absolute;
 	margin-left: 2%;
 	margin-top: 1%;
-	
+
 }
 
 .user-list{
@@ -636,7 +666,7 @@
 	list-style-type: none;
 	padding: 0;
 	background-color: #282F87;
-	
+
 }
 .user-web-list .admin-type1{
 	margin-left: 8%;
@@ -683,7 +713,7 @@
 		border: 1px solid #FFF;
 		border-top-left-radius: 10px;
 		border-bottom-left-radius: 10px; /* 左下角圆角 */
-		
+
 		overflow: hidden; /* 清除浮动 */
 }
 
@@ -749,11 +779,11 @@
 	/* margin-right: 10%; */
 	/* margin-top: 1%; */
 	/* width: 30px; */
-	
+
 }
 .edit-admin{
 	font-size: 5mm;
-	
+
 	color: #282F87;
 }
 
@@ -843,7 +873,7 @@
 .modal-content input[type="text"],
 .modal-content input[type="password"] {
   display: block; /* 将输入框显示为块级元素 */
-  margin-top: 13px; 
+  margin-top: 13px;
   margin-left: 2%;
   height: 20px;
 }
@@ -957,7 +987,7 @@
 	width:100%;
 	margin-top: 9%;
 	margin-left: 5%;
-	
+
 }
 
 .banner-upload input{
@@ -1018,7 +1048,7 @@
 	position: fixed;
 	margin-left: 21.5%;
 	margin-top: 1%;
-	
+
 }
 
 #lastPage:hover{
@@ -1036,7 +1066,7 @@
     background-color: #fff; /* 搜索框的背景色 */
 	border: 1px solid #ccc; /* 添加边框 */
 	border-radius: 10px;
-	
+
 }
 
 .search-box-admin input {
