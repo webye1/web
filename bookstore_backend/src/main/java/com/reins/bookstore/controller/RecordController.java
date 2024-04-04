@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.reins.bookstore.utils.Adapter.*;
+import static java.lang.Math.min;
 
 @RestController
 @CrossOrigin
@@ -54,9 +55,39 @@ public class RecordController {
     }
 
     @RequestMapping("/insert")
-    public List<String> insertAllRecord(@RequestBody List<JSONObject> jsonObjectList
+    public String insertAllRecord(@RequestBody List<JSONObject> jsonObjectList
     ) {
-        List<String> results = new ArrayList<>();
+        List<Record> recordlist = new ArrayList<>();
+        int num= jsonObjectList.size();
+        int i = 0;
+        String s = "";
+        while(num-1000*i>0){
+            for(int j=i*1000;j<min(i*1000+1000,num);j++){
+                JSONObject jsonObject = jsonObjectList.get(j);
+                if (jsonObject.getString("tracking_number")!=null && jsonObject.getString("tracking_number")!=""&&jsonObject.getString("manager")!=null && jsonObject.getString("manager")!=""&&jsonObject.getString("update_state")!=null && jsonObject.getString("update_state")!="") {
+                    Record r1 = js2record(jsonObject);
+                    if (r1.getTrackingnumber()!=null&&r1.getTrackingnumber()!=""&&r1.getManager()!=null&&r1.getManager()!=""&&r1.getUpdate_state()!=null&&r1.getUpdate_state()!=""){
+                        recordlist.add(r1);
+                    }
+                }
+            }
+            s=  recordService.insertall(recordlist);
+            i=i+1;
+            recordlist.clear();
+        }
+        /*
+        for (JSONObject jsonObject :jsonObjectList){
+            if (jsonObject.getString("tracking_number")!=null && jsonObject.getString("tracking_number")!=""&&jsonObject.getString("manager")!=null && jsonObject.getString("manager")!=""&&jsonObject.getString("update_state")!=null && jsonObject.getString("update_state")!="") {
+                Record r1 = js2record(jsonObject);
+                if (r1.getTrackingnumber()!=null&&r1.getTrackingnumber()!=""&&r1.getManager()!=null&&r1.getManager()!=""&&r1.getUpdate_state()!=null&&r1.getUpdate_state()!=""){
+                    recordlist.add(r1);
+                }
+            }
+        }
+        System.out.println(recordlist);
+        String s = recordService.insertall(recordlist);
+        */
+        /*
         for (JSONObject jsonObject :jsonObjectList){
             JSONObject res = new JSONObject();
             res = insertOneRecord(jsonObject);
@@ -72,8 +103,8 @@ public class RecordController {
             }
 
         }
-
-        return results;
+        */
+        return s;
 
     }
     @PostMapping

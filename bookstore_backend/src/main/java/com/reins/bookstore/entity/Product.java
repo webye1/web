@@ -29,9 +29,9 @@ public class Product {
     private String finish_time;
 
 
-    @Id
+
     @Basic
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
     public Integer getProductId() {
         return product_id;
@@ -71,6 +71,9 @@ public class Product {
         this.counter_number = counter_number;
     }
 
+
+
+    @Id
     @Basic
     @Column(name = "tracking_number")
     public String getTrackingnumber() {

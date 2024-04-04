@@ -57,4 +57,10 @@ public class RecordServiceImpl implements RecordService {
         }
         return true;
     }
+
+    @Override
+    public String insertall(List<Record> recordlist) {
+        String s = recordDao.insertall(recordlist);
+        return s;
+    }
 }

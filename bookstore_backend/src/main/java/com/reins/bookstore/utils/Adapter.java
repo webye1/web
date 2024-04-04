@@ -100,6 +100,47 @@ public class Adapter {
         }
     }
 
+    public static Product js2product(JSONObject jsonObject) {
+        Product product = new Product();
+        String product_name = jsonObject.getString("product_name");
+        String proxy = jsonObject.getString("proxy");
+        String counter_number = jsonObject.getString("counter_number");
+        String tracking_number = jsonObject.getString("tracking_number");
+        String customer = jsonObject.getString("customer");
+        Integer count = jsonObject.getInteger("count");
+        Float weight = jsonObject.getFloat("weight");
+        String state = jsonObject.getString("state");
+        String op_time = jsonObject.getString("op_time");
+        product.setProductname(product_name);
+        product.setProxy(proxy);
+        product.setCounternumber(counter_number);
+        product.setTrackingnumber(tracking_number);
+        product.setCustomer(customer);
+        product.setCount(count);
+        product.setWeight(weight);
+
+        product.setOptime(op_time);
+        if (state.equals("已装柜")){
+            product.setCompartmenttime(op_time);
+        } else if (state.equals("已入库")) {
+            product.setStoreroomtime(op_time);
+        } else if (state.equals("已到港")) {
+            product.setPorttime(op_time);
+        } else if (state.equals("已到站")) {
+            product.setStationtime(op_time);
+        } else if (state.equals("清关中")) {
+            product.setClearancetime(op_time);
+        } else if (state.equals("已装车")) {
+            product.setTrucktime(op_time);
+        } else if (state.equals("已完成")) {
+            product.setFinishtime(op_time);
+            product.setCounternumber(null);//完成的柜号清空
+        }
+
+        product.setState(state);
+        return product;
+    }
+
     public static JSONObject wrapRecord(Record record) {
         JSONObject json = new JSONObject();
         if (record == null){
@@ -124,7 +165,20 @@ public class Adapter {
 
 
     }
-
+    public static Record js2record(JSONObject jsonObject) {
+        Record r = new Record();
+        String counter_number = jsonObject.getString("counter_number");
+        String tracking_number = jsonObject.getString("tracking_number");
+        String time_operating = jsonObject.getString("time_operating");
+        String manager = jsonObject.getString("manager");
+        String update_state = jsonObject.getString("update_state");
+        r.setCounternumber(counter_number);
+        r.setTrackingnumber(tracking_number);
+        r.setTimeoperating(time_operating);
+        r.setManager(manager);
+        r.setUpdate_state(update_state);
+        return r;
+    }
     public static JSONObject wrapBanner(Banner banner) {
         JSONObject json = new JSONObject();
         if (banner == null) {

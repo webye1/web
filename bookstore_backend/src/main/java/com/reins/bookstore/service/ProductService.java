@@ -1,10 +1,10 @@
-package com.reins.bookstore.dao;
+package com.reins.bookstore.service;
 
 import com.reins.bookstore.entity.Product;
 
 import java.util.List;
 
-public interface ProductDao {
+public interface ProductService {
     List<Product> getAllProduct();
 
     Product getOneProduct(Integer id);
@@ -13,9 +13,13 @@ public interface ProductDao {
 
     Product updateOneProduct(Product product);
 
-    void deleteOneProduct(int id);
+    boolean deleteOneProduct(int id);
 
     Product getOneProduct(String trackingNumber);
 
     List<Product> getOneProductbyc(String counterNumber);
+
+    String insertall(List<Product> productlist);
+
+    int getMaxID();
 }

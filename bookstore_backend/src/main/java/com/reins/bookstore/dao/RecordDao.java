@@ -14,4 +14,6 @@ public interface RecordDao {
     Record updateOneRecord(Record record);
 
     void deleteOneProduct(int id);
+
+    String insertall(List<Record> recordlist);
 }

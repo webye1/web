@@ -70,5 +70,17 @@ public class ProductServiceImpl implements ProductService {
         return product;
     }
 
+    @Override
+    public String insertall(List<Product> productlist) {
+        String s = productDao.insertall(productlist);
+        return s;
+    }
+
+    @Override
+    public int getMaxID() {
+        int max_int = productDao.getMaxID();
+        return max_int;
+    }
+
 
 }

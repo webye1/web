@@ -53,4 +53,11 @@ public class RecordDaoImpl implements RecordDao {
     public void deleteOneProduct(int id) throws IllegalArgumentException{
         recordRepository.deleteById(id);
     }
+
+    @Override
+    public String insertall(List<Record> recordlist) {
+        recordRepository.saveAll(recordlist);
+        String s = "Insert all record!";
+        return s;
+    }
 }

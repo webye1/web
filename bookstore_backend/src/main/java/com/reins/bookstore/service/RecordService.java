@@ -14,4 +14,6 @@ public interface RecordService {
     Record updateOneRecord(Record record);
 
     boolean deleteOneRecord(int id);
+
+    String insertall(List<Record> recordlist);
 }

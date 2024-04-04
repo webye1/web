@@ -64,4 +64,17 @@ public class ProductDaoImpl implements ProductDao {
         List<Product> product = productRepository.getOneProductbyc(counterNumber);
         return product;
     }
+
+    @Override
+    public String insertall(List<Product> productlist) {
+        productRepository.saveAll(productlist);
+        String s= "Insert all product!";
+        return s;
+    }
+
+    @Override
+    public int getMaxID() {
+        Integer max_id = productRepository.getMaxID();
+        return max_id;
+    }
 }
