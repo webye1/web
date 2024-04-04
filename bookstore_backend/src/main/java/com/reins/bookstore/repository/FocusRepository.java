@@ -13,6 +13,9 @@ public interface FocusRepository extends JpaRepository<Focus, Integer> {
     @Query(value = "select * from focus",nativeQuery = true)
     List<Focus> getAllFocus();
 
-    @Query(value = "select * from focus where userid = ?1 and tracking_num = ?2",nativeQuery = true)
+    @Query(value = "select * from focus where union_id = ?1 and tracking_num = ?2",nativeQuery = true)
     Focus getOnefocus(Integer userid, String trackingnum);
+
+    @Query(value = "select * from focus where union_id = ?1 ",nativeQuery = true)
+    List<Focus> getUnionFocus(Integer unionId);
 }

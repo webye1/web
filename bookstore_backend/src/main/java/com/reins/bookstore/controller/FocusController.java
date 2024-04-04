@@ -37,7 +37,7 @@ public class FocusController {
         List<Focus> focus = focusService.getAllFocus();
         List<JSONObject> resData = new ArrayList<>();
         for (Focus t : focus) {
-            System.out.println("Focus:"+t.getUserid());
+            System.out.println("Focus:"+t.getUnionid());
             System.out.println("Focus:"+t.getTrackingnum());
             resData.add(wrapFocus(t));
         }
@@ -48,19 +48,34 @@ public class FocusController {
         return resData;
     }
     @RequestMapping("/{id}")
-    public JSONObject getOneFocus(@PathVariable Integer id) {
+    public JSONObject getOneFocus(@PathVariable Integer focus_id) {
         System.out.println("getone");
-        System.out.println(id);
-        Focus focus = focusService.getOneFocus(id);
+        System.out.println(focus_id);
+        Focus focus = focusService.getOneFocus(focus_id);
         return wrapFocus(focus);
+    }
+
+    @RequestMapping("/union")
+    public List<JSONObject> getUnionFocus(@PathVariable Integer union_id) {
+        System.out.println("getunion");
+        System.out.println(union_id);
+        List<Focus> focuslist = focusService.getUnionFocus(union_id);
+
+        List<JSONObject> result = new ArrayList<>();
+
+        for(Focus f:focuslist){
+            result.add(wrapFocus(f));
+        }
+        return result;
     }
     @PostMapping
     public JSONObject insertOneFocus(@RequestBody JSONObject jsonObject
                                             ) {
         //去user表中找是否有该userid，有的话继续，没的话返回
-        Integer userid = jsonObject.getInteger("userid");
+        Integer union_id = jsonObject.getInteger("union_id");
         String trackingnum = jsonObject.getString("tracking_num");
-        Wxuser wxuser = wxuserService.getOneWxuser(userid);
+        String addition = jsonObject.getString("addition");
+        Wxuser wxuser = wxuserService.getOneWxuser(union_id);
         System.out.println(wxuser);
         if (wxuser == null ) {
             JSONObject res = new JSONObject();
@@ -78,7 +93,8 @@ public class FocusController {
             System.out.println("getonenull");
             return wrapProduct(null);
         }
-        Focus f = focusService.getOneFocus(userid,trackingnum);
+
+        Focus f = focusService.getOneFocus(union_id,trackingnum);
         if (f != null ) {
             JSONObject res = new JSONObject();
             res.put("code", -1);
@@ -86,9 +102,12 @@ public class FocusController {
             System.out.println("getonenull");
             return wrapFocus(null);
         }
+
+
         Focus focus = new Focus();
-        focus.setUserid(userid);
+        focus.setUnionid(union_id);
         focus.setTrackingnum(trackingnum);
+        focus.setAddition(addition);
         System.out.println("post");
         Focus focus1 = focusService.insertOneFocus(focus);
         System.out.println(focus1);
@@ -102,9 +121,10 @@ public class FocusController {
     public JSONObject updateOneFocus(@RequestBody JSONObject jsonObject
     ) {
         //去focus表中找id，有的话继续，没有的话返回
-        Integer focusid = jsonObject.getInteger("focusid");
+        Integer union_id = jsonObject.getInteger("union_id");
         String trackingnum = jsonObject.getString("tracking_number");
-        Focus f = focusService.getOneFocus(focusid);
+        String addition = jsonObject.getString("addition");
+        Focus f = focusService.getOneFocus(union_id,trackingnum);
         if (f == null ) {
             JSONObject res = new JSONObject();
             res.put("code", -1);
@@ -113,9 +133,12 @@ public class FocusController {
             return wrapFocus(null);
         }
         Focus focus = new Focus();
-        focus.setId(focusid);
-        focus.setUserid(f.getUserid());
-        focus.setTrackingnum(trackingnum);
+        focus.setFocusid(f.getFocusid());
+        focus.setUnionid(f.getUnionid());
+        focus.setTrackingnum(f.getTrackingnum());
+        focus.setAddition(addition);
+
+
         System.out.println("post");
         Focus focus1 = focusService.updateOneFocus(focus);
         System.out.println(focus1);
@@ -126,11 +149,11 @@ public class FocusController {
     }
 
     @DeleteMapping
-    public Object deleteOneFocus(@RequestParam(value = "userid",required = false) int userid,
+    public Object deleteOneFocus(@RequestParam(value = "union_id",required = false) int union_id,
                                  @RequestParam(value = "tracking_number",required = false) String tracking_num
     ) {
         System.out.println("deleteone");
-        Focus f = focusService.getOneFocus(userid,tracking_num);
+        Focus f = focusService.getOneFocus(union_id,tracking_num);
         if (f == null ) {
             JSONObject res = new JSONObject();
             res.put("code", -1);
@@ -139,7 +162,7 @@ public class FocusController {
             return wrapFocus(null);
         }
 
-        if (!focusService.deleteOneFocus(f.getId())) {
+        if (!focusService.deleteOneFocus(f.getFocusid())) {
             System.out.println("not found");
             return new Message(-1, "User not found.");
         } else {

@@ -37,10 +37,10 @@ public class WxuserController {
     }
 
     @RequestMapping("/{id}")
-    public JSONObject getOneWxuesr(@PathVariable Integer id) {
+    public JSONObject getOneWxuesr(@PathVariable Integer union_id) {
         System.out.println("getoneWxuesr");
-        System.out.println(id);
-        Wxuser wxuser = wxuserService.getOneWxuser(id);
+        System.out.println(union_id);
+        Wxuser wxuser = wxuserService.getOneWxuser(union_id);
         return wrapWxuser(wxuser);
     }
 
@@ -49,10 +49,12 @@ public class WxuserController {
     ) {
         String name = jsonObject.getString("name");
         String avatar = jsonObject.getString("avatar");
+        Integer union_id = jsonObject.getInteger("union_id");
         //去user表中找是否有该userid，有的话继续，没的话返回
         Wxuser wxuser = new Wxuser();
         wxuser.setName(name);
         wxuser.setAvatar(avatar);
+        wxuser.setUnionid(union_id);
         System.out.println("wxuserpostinsert");
         Wxuser wxuser1 = wxuserService.insertOneWxuser(wxuser);
         System.out.println(wxuser1);
@@ -65,10 +67,11 @@ public class WxuserController {
     @PutMapping
     public JSONObject updateOneWxuser( @RequestBody JSONObject jsonObject
     ) {
-        Integer id = jsonObject.getInteger("id");
+        Integer union_id = jsonObject.getInteger("union_id");
         String name = jsonObject.getString("name");
+        String avatar = jsonObject.getString("avatar");
         //去focus表中找id，有的话继续，没有的话返回
-        Wxuser w = wxuserService.getOneWxuser(id);
+        Wxuser w = wxuserService.getOneWxuser(union_id);
         if (w == null ) {
             JSONObject res = new JSONObject();
             res.put("code", -1);
@@ -77,9 +80,19 @@ public class WxuserController {
             return wrapWxuser(null);
         }
         Wxuser wxuser = new Wxuser();
-        wxuser.setUserId(id);
-        wxuser.setName(name);
-        wxuser.setAvatar(w.getAvatar());
+        wxuser.setUnionid(union_id);
+        if(name ==null){
+            wxuser.setName(w.getName());
+        }
+       else{
+            wxuser.setName(name);
+        }
+       if(avatar == null){
+           wxuser.setAvatar(w.getAvatar());
+       }else{
+           wxuser.setAvatar(avatar);
+       }
+
         System.out.println("wxuserpostupdate");
         Wxuser wxuser1 = wxuserService.updateOneWxuser(wxuser);
         System.out.println(wxuser1);
@@ -90,11 +103,11 @@ public class WxuserController {
     }
 
     @DeleteMapping
-    public Object deleteOneWxuser( @RequestParam(value = "id",required = false) int id
+    public Object deleteOneWxuser( @RequestParam(value = "union_id",required = false) int union_id
     ) {
         System.out.println("wxuserdeleteone");
 
-        if (!wxuserService.deleteOneWxuser(id)) {
+        if (!wxuserService.deleteOneWxuser(union_id)) {
             System.out.println("not found");
             return new Message(-1, "User not found.");
         } else {

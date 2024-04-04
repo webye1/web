@@ -56,5 +56,11 @@ public class FocusDaoImpl implements FocusDao {
         return focus1;
     }
 
+    @Override
+    public List<Focus> getUnionFocus(Integer unionId) {
+        List<Focus> focuslist = focusRepository.getUnionFocus( unionId);
+        return focuslist;
+    }
+
 
 }

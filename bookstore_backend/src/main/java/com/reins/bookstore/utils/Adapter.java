@@ -12,26 +12,28 @@ public class Adapter {
     public static JSONObject wrapFocus(Focus focus) {
         JSONObject json = new JSONObject();
         if (focus == null) {
-            json.put("id", -1);
-            json.put("userid", -1);
+            json.put("focus_id", -1);
+            json.put("union_id", -1);
             json.put("tracking_number", null);
+            json.put("addition", null);
             return json;
         }
-        json.put("id", focus.getId());
-        json.put("userid", focus.getUserid());
+        json.put("foucus_id", focus.getFocusid());
+        json.put("union_id", focus.getUnionid());
         json.put("tracking_number", focus.getTrackingnum());
+        json.put("addition", focus.getAddition());
         return json;
     }
 
     public static JSONObject wrapWxuser(Wxuser wxuser) {
         JSONObject json = new JSONObject();
         if (wxuser == null) {
-            json.put("id", -1);
+            json.put("union_id", -1);
             json.put("name", null);
             json.put("avatar", null);
             return json;
         }else {
-            json.put("id", wxuser.getUserId());
+            json.put("union_id", wxuser.getUnionid());
             json.put("name", wxuser.getName());
             json.put("avatar", wxuser.getAvatar());
             return json;

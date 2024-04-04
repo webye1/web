@@ -8,30 +8,31 @@ import java.util.List;
 @Table(name = "focus")
 public class Focus {
     public static final Integer ADMIN_TYPE_ID = 0;
-    private Integer id;
-    private Integer user_id;
+    private Integer focus_id;
+    private Integer union_id;
     private String tracking_number;
+    private String addition;
 
     @Id
     @Basic
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    public Integer getId() {
-        return id;
+    @Column(name = "focus_id")
+    public Integer getFocusid() {
+        return focus_id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setFocusid(Integer focus_id) {
+        this.focus_id = focus_id;
     }
 
     @Basic
-    @Column(name = "userid")
-    public Integer getUserid() {
-        return user_id;
+    @Column(name = "union_id")
+    public Integer getUnionid() {
+        return union_id;
     }
 
-    public void setUserid(Integer user_id) {
-        this.user_id = user_id;
+    public void setUnionid(Integer union_id) {
+        this.union_id = union_id;
     }
 
     @Basic
@@ -44,12 +45,23 @@ public class Focus {
         this.tracking_number = tracking_number;
     }
 
+    @Basic
+    @Column(name = "addition")
+    public String getAddition() {
+        return addition;
+    }
+
+    public void setAddition(String addition) {
+        this.addition = addition;
+    }
+
     @Override
     public String toString() {
         return "User{" +
-                "id=" + id +
-                ", userid='" + user_id + '\'' +
+                "focus_id=" + focus_id +
+                ", union_id='" + union_id + '\'' +
                 ", tracking_number='" + tracking_number + '\'' +
+                ", addition='" + addition + '\'' +
                 '}';
     }
 }

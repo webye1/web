@@ -58,7 +58,7 @@ public class ProductController {
     }
 
     @RequestMapping("/update")
-    public String updateProduct(@RequestBody JSONObject jsonObject
+    public  List<JSONObject> updateProduct(@RequestBody JSONObject jsonObject
     ) {
 
         List<JSONObject> results = new ArrayList<>();
@@ -169,6 +169,7 @@ public class ProductController {
                 }
                 if (product.getTrackingnumber()!=null&&product.getTrackingnumber()!=""){
                     productlist.add(product);
+                    results.add(wrapProduct(product));
                 }
 
             }
@@ -177,6 +178,7 @@ public class ProductController {
             i=i+1;
             productlist.clear();
         }
+
         /*
         for (Product it :plist) {
 
@@ -198,15 +200,15 @@ public class ProductController {
         }
         */
 
-        return s;
+        return results;
 
     }
 
 
     @RequestMapping("/insert")
-    public String insertAllProduct(@RequestBody List<JSONObject> jsonObjectList
+    public List<String> insertAllProduct(@RequestBody List<JSONObject> jsonObjectList
     ) {
-        //List<String> results = new ArrayList<>();
+        List<String> results = new ArrayList<>();
 
 
 
@@ -340,6 +342,7 @@ public class ProductController {
                     }
                     if (product.getTrackingnumber()!=null&&product.getTrackingnumber()!=""){
                         productlist.add(product);
+                        results.add("Insert all product!");
                     }
 
                 }
@@ -402,7 +405,7 @@ public class ProductController {
 
         }
         */
-        return s;
+        return results;
 
     }
 

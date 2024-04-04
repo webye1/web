@@ -17,4 +17,6 @@ public interface FocusDao {
     void deleteOneFocus(Integer id);
 
     Focus getOneFocus(Integer userid, String trackingnum);
+
+    List<Focus> getUnionFocus(Integer unionId);
 }
