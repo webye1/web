@@ -29,8 +29,8 @@ public class BannerServiceImpl  implements BannerService {
     }
 
     @Override
-    public Banner insertOne(Banner banner) {
-        Banner banner1 = bannerDao.insertOne(banner);
+    public Banner insertOne(int id,Banner banner) {
+        Banner banner1 = bannerDao.insertOne(id,banner);
         return banner1;
     }
 
@@ -44,6 +44,16 @@ public class BannerServiceImpl  implements BannerService {
     public boolean deleteOne(int i) {
         try {
             bannerDao.deleteOne(i);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean deleteall() {
+        try {
+            bannerDao.deleteall();
         } catch (Exception e) {
             return false;
         }

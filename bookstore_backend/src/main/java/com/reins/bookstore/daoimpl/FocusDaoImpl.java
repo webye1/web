@@ -51,13 +51,13 @@ public class FocusDaoImpl implements FocusDao {
     }
 
     @Override
-    public Focus getOneFocus(Integer userid, String trackingnum) {
+    public Focus getOneFocus(String userid, String trackingnum) {
         Focus focus1 = focusRepository.getOnefocus(userid,trackingnum);//insertOneFocus(focus.getUserid(),focus.getTrackingnum());
         return focus1;
     }
 
     @Override
-    public List<Focus> getUnionFocus(Integer unionId) {
+    public List<Focus> getUnionFocus(String unionId) {
         List<Focus> focuslist = focusRepository.getUnionFocus( unionId);
         return focuslist;
     }

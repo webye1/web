@@ -13,7 +13,7 @@ public interface ProductDao {
 
     Product updateOneProduct(Product product);
 
-    void deleteOneProduct(int id);
+    void deleteOneProduct(Integer id);
 
     Product getOneProduct(String trackingNumber);
 

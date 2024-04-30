@@ -47,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public boolean deleteOneProduct(int id) {
+    public boolean deleteOneProduct(Integer id) {
         System.out.println("productservicedeleteone");
         try {
             productDao.deleteOneProduct(id);

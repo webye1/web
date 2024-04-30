@@ -24,9 +24,9 @@ public class WxuserDaoImpl implements WxuserDao {
     }
 
     @Override
-    public Wxuser getOneWxuser(Integer id) {
+    public Wxuser getOneWxuser(String id) {
         System.out.println("WxuserDaogetone");
-        Wxuser wxuser = wxuserRepository.getOne(id);//insertOneFocus(focus.getUserid(),focus.getTrackingnum());
+        Wxuser wxuser = wxuserRepository.getWXuser(id);//insertOneFocus(focus.getUserid(),focus.getTrackingnum());
         return wxuser;
     }
 
@@ -34,6 +34,7 @@ public class WxuserDaoImpl implements WxuserDao {
     public Wxuser insertOneWxuser(Wxuser wxuser) {
         System.out.println("wxuserDaoinsert");
         try {
+            System.out.println(wxuser.getOpenid());
             return wxuserRepository.save(wxuser);
         } catch (Exception e) {
             e.printStackTrace();

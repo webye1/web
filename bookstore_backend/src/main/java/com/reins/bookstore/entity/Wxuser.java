@@ -6,20 +6,20 @@ import javax.persistence.*;
 @Table(name = "wxuser")
 public class Wxuser {
     public static final Integer ADMIN_TYPE_ID = 0;
-    private Integer union_id;
+    private String open_id;
     private String name;
     private String avatar;
 
     @Id
     @Basic
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "union_id")
-    public Integer getUnionid() {
-        return union_id;
+    //@GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "open_id")
+    public String getOpenid() {
+        return open_id;
     }
 
-    public void setUnionid(Integer union_id) {
-        this.union_id = union_id;
+    public void setOpenid(String open_id) {
+        this.open_id = open_id;
     }
 
     @Basic
@@ -45,7 +45,7 @@ public class Wxuser {
     @Override
     public String toString() {
         return "Wxuser{" +
-                "union_id=" + union_id +
+                "open_id=" + open_id +
                 ", name='" + name + '\'' +
                 ", avatar='" + avatar + '\'' +
                 '}';

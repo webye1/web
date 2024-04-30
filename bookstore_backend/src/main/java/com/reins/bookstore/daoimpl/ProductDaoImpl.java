@@ -26,7 +26,7 @@ public class ProductDaoImpl implements ProductDao {
     @Override
     public Product getOneProduct(Integer id) {
         System.out.println("productDaogetone");
-        Product product = productRepository.getOne(id);//insertOneFocus(focus.getUserid(),focus.getTrackingnum());
+        Product product = productRepository.getOnePbyid(id);//insertOneFocus(focus.getUserid(),focus.getTrackingnum());
         return product;
     }
 
@@ -49,8 +49,10 @@ public class ProductDaoImpl implements ProductDao {
     }
 
     @Override
-    public void deleteOneProduct(int id) throws IllegalArgumentException{
-        productRepository.deleteById(id);
+    public void deleteOneProduct(Integer id) throws IllegalArgumentException{
+        System.out.println("repostitory delete");
+        productRepository.deleteProductById(id);
+
     }
 
     @Override

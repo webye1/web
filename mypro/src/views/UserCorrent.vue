@@ -81,20 +81,21 @@ export default {
   mounted() {
     // 页面加载时从localStorage读取用户类型
     if (this.currentUserName && this.currentUserType) {
-                  this.currentUserType = localStorage.getItem('currentUserType');
-                  this.currentUserName = localStorage.getItem('currentUserName');
+                  this.currentUserType =  this.$route.query.currentUserType;
+                  this.currentUserName = this.$route.query.currentUserName;
       }
 
+						
     else{
       this.$router.push('/');
       return;
       /// 当组件挂载时，尝试从LocalStorage中获取保存的数据
-      const savedData = JSON.parse(localStorage.getItem('userData'));
-    if (savedData) {
-      // 如果有保存的数据，则恢复到组件的data中
-      this.currentUserType = savedData.currentUserType;
-      this.currentUserName = savedData.currentUserName;
-    }
+    //   const savedData = JSON.parse(localStorage.getItem('userData'));
+    // if (savedData) {
+    //   // 如果有保存的数据，则恢复到组件的data中
+    //   this.currentUserType = savedData.currentUserType;
+    //   this.currentUserName = savedData.currentUserName;
+    // }
     }
 
   },
@@ -130,7 +131,7 @@ export default {
 	  // console.log("data");
 	  // console.log(data);
       // 发送数据到后端
-      axios.put('http://47.98.58.79:8080/Manager', data)
+      axios.put('https://www.hxlogistics.top/to_url/Manager/', data)
         .then(response => {
           // console.log("response");
 	        // console.log(response);

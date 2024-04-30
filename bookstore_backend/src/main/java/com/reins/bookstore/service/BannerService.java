@@ -7,9 +7,12 @@ public interface BannerService {
 
     int getAll();
 
-    Banner insertOne(Banner banner);
+    Banner insertOne(int id,Banner banner);
 
     Banner updateOne(Banner b);
 
     boolean deleteOne(int i);
+
+
+    boolean deleteall();
 }

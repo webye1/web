@@ -8,12 +8,15 @@ import com.reins.bookstore.service.WxuserService;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.stereotype.Service;
 
+
+
 import java.util.List;
 
 @Service
 @CacheConfig(cacheNames = {"lastResult"})
 public class WxuserServiceImpl implements WxuserService {
     private final WxuserDao wxuserDao;
+
 
     public WxuserServiceImpl(WxuserDao wxuserDao) {
         this.wxuserDao = wxuserDao;
@@ -26,7 +29,7 @@ public class WxuserServiceImpl implements WxuserService {
     }
 
     @Override
-    public Wxuser getOneWxuser(Integer id) {
+    public Wxuser getOneWxuser(String id) {
         System.out.println("Wxuserservicegetone");
         Wxuser wxuser = wxuserDao.getOneWxuser(id);
         return wxuser;

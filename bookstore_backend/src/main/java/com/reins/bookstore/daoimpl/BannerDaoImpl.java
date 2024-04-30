@@ -26,12 +26,12 @@ public class BannerDaoImpl implements BannerDao {
     }
 
     @Override
-    public Banner insertOne(Banner banner) {
+    public Banner insertOne(int id,Banner banner) {
         System.out.println("id:"+banner.getId()+" url:"+banner.getUrl());
-        Integer i  = bannerRepository.insertOne(banner.getUrl());
+        Integer i  = bannerRepository.insertOne(id,banner.getUrl());
         System.out.println(i);
         Banner banner1 = new Banner();
-        banner1.setId(2);
+        banner1.setId(id);
         banner1.setUrl(banner.getUrl());
         return banner1;
     }
@@ -46,5 +46,10 @@ public class BannerDaoImpl implements BannerDao {
     @Override
     public void deleteOne(int i) throws IllegalArgumentException{
         bannerRepository.deleteById(i);
+    }
+
+    @Override
+    public void deleteall() {
+        bannerRepository.deleteall();
     }
 }

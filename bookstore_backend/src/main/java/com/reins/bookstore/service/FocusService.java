@@ -14,7 +14,7 @@ public interface FocusService {
 
     boolean deleteOneFocus(Integer id);
 
-    Focus getOneFocus(Integer userid, String trackingnum);
+    Focus getOneFocus(String userid, String trackingnum);
 
-    List<Focus> getUnionFocus(Integer unionId);
+    List<Focus> getUnionFocus(String unionId);
 }

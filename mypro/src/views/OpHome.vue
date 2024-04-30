@@ -38,12 +38,13 @@
       <div class="switcher">
         <select id="status-switcher" v-model="selectedStatus">
                     <option value="">所有状态</option>
-                    <option value="已入库">已入库</option>
-                    <option value="已装柜">已装柜</option>
+                    <!-- <option value="已装柜">已装柜</option> -->
                     <option value="已到港">已到港</option>
                     <option value="已到站">已到站</option>
                     <option value="清关中">清关中</option>
                     <option value="已装车">已装车</option>
+                    <option value="已到仓">已到仓</option>
+                    <option value="已完成">已完成</option>
                 </select>
         </div>
         <button class="UpdateSubmit" @click="updateStatus"> 更新 </button>
@@ -61,7 +62,7 @@
     </div>
 
     <!-- 文件列表展示 -->
-    <div v-for="file in files" :key="file.name" class="download-button">
+    <div v-for="file in files" :key="file.name" class="download-button" >
       <p>本次上传文件名：{{ file.name }}，大小：{{ file.size }}字节</p>
       <button @click="downloadFile(file)">下载</button>
       <button @click="uploadFile(file)" :disabled="isUploadButtonDisabled(file)">
@@ -71,6 +72,9 @@
 
     </div>
   </div>
+  <!-- 加载动画 -->
+  <div class="box" v-if="loadFlag===true"><span></span></div>
+
 </v-scale-screen>
 </template>
 
@@ -105,7 +109,10 @@ export default {
       cabinetNumber: '',
       selectedStatus: '',
       list_C:[],
-      KeyWord:''
+      KeyWord:'',
+      loadFlag:false,
+      insertFlag: false,
+      insertFlag_R: false
     };
   },
   mounted() {
@@ -125,6 +132,7 @@ export default {
   },
   methods: {
     updateStatus() {
+      this.loadFlag=true;
       if (this.cabinetNumber && this.selectedStatus) {
 
         if (confirm(`是否将当前柜号(${this.cabinetNumber})的状态更新为${this.selectedStatus}？`)) {
@@ -134,10 +142,10 @@ export default {
               data3['state'] = this.selectedStatus;
               data4['counter_number'] = this.cabinetNumber;
               data4['update_state'] = this.selectedStatus;
-              console.log("this.cabinetNumber");
-              console.log(this.cabinetNumber);
-              console.log("this.selectedStatus");
-              console.log(this.selectedStatus);
+              // console.log("this.cabinetNumber");
+              // console.log(this.cabinetNumber);
+              // console.log("this.selectedStatus");
+              // console.log(this.selectedStatus);
 
               // 添加当前操作时间的年、月、日、时、分、秒
               const currentTime = new Date();
@@ -153,18 +161,23 @@ export default {
                 ('0' + currentTime.getHours()).slice(-2) + ':' +
                 ('0' + currentTime.getMinutes()).slice(-2) + ':' +
                 ('0' + currentTime.getSeconds()).slice(-2);
-              data3['manager'] = this.currentUserName;
-              data4['manager'] = this.currentUserName;
+              data3['manager'] = this.$route.query.currentUserName;
+              data4['manager'] = this.$route.query.currentUserName;
 
 
               data3['counter_number'] = data3['counter_number'].replace(/ /g, '');
 
 
           // 发送数据到后端
-          axios.put('http://47.98.58.79:8080/Product/update', data3)
+          axios.put('https://www.hxlogistics.top/to_url/Product/update/', data3)
         .then((res) => {
-
+          console.log("柜号res");
             console.log(res);
+            // if(res.data==="Insert all product!"){
+              this.insertFlag=true;
+              console.log("柜号this.insertFlag");
+              console.log(this.insertFlag);
+            // }
           let it;
           let list = [];
 
@@ -179,23 +192,40 @@ export default {
               ('0' + currentTime.getHours()).slice(-2) + ':' +
               ('0' + currentTime.getMinutes()).slice(-2) + ':' +
               ('0' + currentTime.getSeconds()).slice(-2);
-            data4['manager'] = this.currentUserName;
+            data4['manager'] = this.$route.query.currentUserName;
             data4['tracking_number'] = res.data[i].tracking_number;
             data4['counter_number'] = data4['counter_number'].replace(/ /g, '');
             data4['tracking_number'] = data4['tracking_number'].replace(/ /g, '');
 
-            console.log(data4);
+            // console.log(data4);
             list.push(data4);
 
           }
 
 
-            axios.post('http://47.98.58.79:8080/Record/insert', list)
+            axios.post('https://www.hxlogistics.top/to_url/Record/insert/', list)
               .then((res) => {
-                this.$message({
-                message: "更新成功",
-                type: 'success'
-              });
+                if(res.data==="Insert all record!"){
+                  this.insertFlag_R=true;
+                  console.log("柜号this.insertFlag_R");
+                  console.log(this.insertFlag);
+                }
+                if(this.insertFlag_R === true && this.insertFlag === true){
+                  this.$message({
+                  message: "更新成功",
+                  type: 'success'
+                });
+                console.log(res.data);
+                }
+                else{
+                  this.$message({
+                  message: "更新失败",
+                  type: 'error'
+                });
+                console.log(res.data);
+                }
+
+              this.loadFlag=false;
               })
               .catch((err) => {
                 if (err.response && err.response.status === 401) {
@@ -203,11 +233,13 @@ export default {
                     message: "更新错误",
                     type: 'error'
                   });
+                  this.loadFlag=false;
                 } else {
                   this.$message({
                     message: "网络错误",
                     type: 'error'
                   });
+                  this.loadFlag=false;
                 }
               });
 
@@ -219,17 +251,20 @@ export default {
               message: "更新错误",
               type: 'error'
             });
+            this.loadFlag=false;
           } else {
             this.$message({
               message: "网络错误",
               type: 'error'
             });
+            this.loadFlag=false;
           }
         });
 
 
         }
       else {
+        this.loadFlag=false;
         alert('请填写柜号并选择状态');
       }
     }
@@ -274,6 +309,13 @@ export default {
     dragLeave(event) {
       event.preventDefault();
       this.dropzoneActive = false;
+    },
+    async cleanString(w){
+      // console.log("w:");
+      // console.log(w);
+      w = w.replace(/ /g, '');
+      // console.log(w);
+      return w;
     },
     dragOver(event) {
       event.preventDefault();
@@ -323,6 +365,7 @@ export default {
       }
     },
       async uploadFile(file) {
+        this.loadFlag=true;
       // 如果文件已经在上传中，则不允许再次上传
       if (file.uploading) {
         return;
@@ -364,6 +407,15 @@ export default {
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
+        // 检查第一行是否为空
+        if (jsonData.length > 0 && jsonData[0].every(cell => cell === null || cell === '')) {
+          this.$message({
+            message: '第一行不能为空，请填写表头',
+            type: 'error'
+          });
+          return; // 不进行后续处理
+        }
+
         // 定义列名到参数名称的映射关系
         const columnMapping = {
           '代理': 'proxy',
@@ -385,10 +437,7 @@ export default {
         for (let i = 1; i < jsonData.length; i++) {
           const row = jsonData[i];
 
-          // 如果第一个单元格为空，表示空行，直接跳过
-          if (!row[0]) {
-            continue;
-          }
+          // console.log(row);
 
           const data = {};
 
@@ -417,39 +466,32 @@ export default {
               }
 
           }
+          else{
+              // 添加当前操作时间的年、月、日、时、分、秒
+          const currentTime = new Date();
+          data['op_time'] = currentTime.getFullYear() + '-' +
+                            ('0' + (currentTime.getMonth() + 1)).slice(-2) + '-' +
+                            ('0' + currentTime.getDate()).slice(-2) + ' ' +
+                            ('0' + currentTime.getHours()).slice(-2) + ':' +
+                            ('0' + currentTime.getMinutes()).slice(-2) + ':' +
+                            ('0' + currentTime.getSeconds()).slice(-2);
+          }
 
-          data['username'] = this.currentUserName;
+          data['username'] = this.$route.query.currentUserName;
 
 
-          data['tracking_number'] =  data['tracking_number'].replace(/ /g, '');
+          this.cleanString(data['tracking_number'])
+              .then((result) => {
+                data['tracking_number'] =  result;})
+          this.cleanString(data['counter_number'])
+          .then((result) => {
+            data['counter_number'] =  result;})
 
 
-
-          data['counter_number'] =  data['counter_number'].replace(/ /g, '');
-
-          // console.log(data['tracking_number']);
-
-          // 根据操作类型决定发送数据到后端的逻辑
-          // let result;
-
-          // // console.log("data['op_time']");
-          // // console.log(data['op_time']);
-          // // console.log("productdata:");
-          // // console.log(data);
-          // if (operationType === 0) {
-          //   result = await this.sendInsertDataToBackend(data);
-
-          // } else if (operationType === 1 || operationType === 2) {
-          //   result = await this.sendUpdateDataToBackend(data);
-          // }
-
-          // // 将每行数据的上传结果保存到数组中
-          // uploadResults.push(result);
-          // console.log("data:");
-            console.log(data);
             this.list_P.push(data);
-            // console.log("this.list_P");
-            // console.log(this.list_P);
+
+            // console.log("data");
+            // console.log(data);
         }
             let result;
           // console.log("operationType");
@@ -459,6 +501,7 @@ export default {
             this.sendInsertDataToBackend(this.list_P,file);
 
           // 将每行数据的上传结果保存到数组中
+          console.log(this.list_P);
           uploadResults.push(result);
 
 
@@ -470,6 +513,7 @@ export default {
               message: '第'+(n+1)+"行导入错误",
               type: 'error'
             });
+            this.loadFlag=false;
           }
         }
         if(this.resultFlag === true){
@@ -478,6 +522,7 @@ export default {
             message: '所有文件上传成功',
             type: 'success'
           });
+          this.loadFlag=false;
           this.files = [];
         }
 
@@ -580,12 +625,22 @@ export default {
     async sendInsertDataToBackend(data_p,file) {
 
         // console.log("sendInsertDataToBackend成功");
+        // console.log("sendInsertDataToBackend收到的data_p:");
+        // console.log(data_p);
         // 发送数据到后端的逻辑，插入操作
-        axios.post('http://47.98.58.79:8080/Product/insert', data_p)
+        axios.post('https://www.hxlogistics.top/to_url/Product/insert/', data_p)
         .then((res) => {
         //  console.log("进入record");
-        //  console.log("res");
+        //  console.log("product_res");
         //  console.log(res);
+        //  if(res.data==="Insert all product!")
+        //  {
+        //   console.log("res.data");
+        //  console.log(res.data);
+          this.insertFlag=true;
+          // console.log("this.insertFlag");
+          //     console.log(this.insertFlag);
+        //  }
           //record插入
           // const uploadResults2 = [];
           const reader2 = new FileReader();
@@ -613,10 +668,7 @@ export default {
             for (let i = 1; i < jsonData.length; i++) {
               const row = jsonData[i];
 
-              // 如果第一个单元格为空，表示空行，直接跳过
-              if (!row[0]) {
-                continue;
-              }
+
 
               const data2 = {};
 
@@ -636,7 +688,7 @@ export default {
                                 ('0' + currentTime.getMinutes()).slice(-2) + ':' +
                                 ('0' + currentTime.getSeconds()).slice(-2);
 
-              data2['manager'] = this.currentUserName;
+              data2['manager'] = this.$route.query.currentUserName;
 
               // 根据操作类型决定发送数据到后端的逻辑
               // let result2;
@@ -653,9 +705,16 @@ export default {
               //   console.log(this.list_R);
 
 
+// data['counter_number']
+              // data2['tracking_number'] =  data2['tracking_number'].replace(/ /g, '');
+              // data2['counter_number'] =  data2['counter_number'].replace(/ /g, '');
 
-              data2['tracking_number'] =  data2['tracking_number'].replace(/ /g, '');
-              data2['counter_number'] =  data2['counter_number'].replace(/ /g, '');
+              this.cleanString(data2['tracking_number'])
+              .then((result) => {
+                data2['tracking_number'] =  result;})
+              this.cleanString(data2['counter_number'])
+              .then((result) => {
+                data2['counter_number'] =  result;})
               // console.log(data2['tracking_number']);
 
               // console.log("data2[tracking number]:");
@@ -671,34 +730,61 @@ export default {
             // console.log("this.list_R_删除前");
             // console.log(this.list_R);
 
-            let i = 0;
-            for( i = res.data.length-1;i>=0;i--){//遍历product_list插入的返回值
-                if(res.data[i] == "Product Update!"){
-                  // console.log("update");
-                }
-                if(res.data[i] =="Product Insert!"){
-                  // console.log("insert");
+            // let i = 0;
+            // for( i = res.data.length-1;i>=0;i--){//遍历product_list插入的返回值
+            //     // if(res.data[i] == "Insert all product!"){
+            //     //   // console.log("update");
+            //     // }
+            //     // if(res.data[i] =="Product Insert!"){
+            //     //   // console.log("insert");
 
-                }
-              if(res.data[i] =="Product Error!"){
-                // console.log("error");
-                this.list_R.splice(i,1);//record_list删除
-              }
-              }
+            //     // }
+            //   if(res.data[i] =="Product Error!"){
+            //     // console.log("error");
+            //     this.list_R.splice(i,1);//record_list删除
+            //   }
+            //   }
 
             // console.log("this.list_R删除后");
             // console.log(this.list_R);
+            let result2 ='';
             result2 = await this.sendInsertDataToRecord(this.list_R);
             // console.log("result_R");
             //   console.log(result2);
+            // console.log("result2");
+            //   console.log(result2);
+            //   console.log(result2.response);
+            //   console.log(result2.response.data);
+            if(result2.response.data==="Insert all record!"){
+              // console.log("result2.data");
+              // console.log(result2.data);
+              this.insertFlag_R=true;
+              // console.log("this.insertFlag_R");
+              // console.log(this.insertFlag_R);
+            }
 
-            };
-
-            reader2.readAsArrayBuffer(file);
-            this.$message({
+            if(this.insertFlag_R===true && this.insertFlag===true){
+              this.$message({
               message: "上传成功",
               type: 'success'
             });
+            this.loadFlag=false;
+            this.deleteFile(file);
+            }
+            else{
+              this.$message({
+              message: "上传失败",
+              type: 'error'
+            });
+            this.loadFlag=false;
+            }
+            };
+
+            reader2.readAsArrayBuffer(file);
+
+
+
+
         })
         .catch((err) => {
           if (err.response && err.response.status === 401) {
@@ -706,11 +792,13 @@ export default {
               message: "上传错误",
               type: 'error'
             });
+            this.loadFlag=false;
           } else {
             this.$message({
               message: "网络错误",
               type: 'error'
             });
+            this.loadFlag=false;
           }
         });
         // console.log("InsertDate:");
@@ -869,13 +957,13 @@ export default {
 
     async sendInsertDataToRecord(list) {
 
-       console.log("R接收到的list:");
-          console.log(list);
+      //  console.log("R接收到的list:");
+      //     console.log(list);
       try {
-        console.log("sendInsertDataToRecord成功");
+        // console.log("sendInsertDataToRecord成功");
         // 发送数据到后端的逻辑，插入操作
-        const response = await axios.post('http://47.98.58.79:8080/Record/insert', list);
-        console.log(response);
+        const response = await axios.post('https://www.hxlogistics.top/to_url/Record/insert/', list);
+        // console.log(response);
         return { success: response.record_id !== -1, response };
       } catch (error) {
         return { success: false, error };
@@ -1133,4 +1221,29 @@ export default {
   background-color: #007bff;
 }
 
+.box {
+        position: fixed;
+		    text-align: center;
+		    width: 100%;
+		    height: 100%;
+		    /* margin-left:40% ;
+        margin-top: 20%; */
+        background-color: rgba(217, 216, 216, 0.538);
+		}
+		.box>span {
+		    animation: loader 1000ms infinite linear;
+		    border-radius: 100%;
+		    border: 6px solid #2dbb55;
+		    border-left-color: transparent;
+		    color: transparent;
+		    display: inline-block;
+		    line-height: 1.2;
+		    width: 50px;
+		    height: 50px;
+        margin-top: 25%;
+		}
+		@keyframes loader {
+		    0% {  transform: rotate(0deg);  }
+		    100% {transform: rotate(360deg);}
+		}
 </style>

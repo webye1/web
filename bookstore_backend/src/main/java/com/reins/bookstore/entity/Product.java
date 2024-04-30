@@ -26,6 +26,7 @@ public class Product {
     private String station_time;
     private String clearance_time;
     private String truck_time;
+    private String warehouse_time;
     private String finish_time;
 
 
@@ -196,6 +197,16 @@ public class Product {
     }
 
     @Basic
+    @Column(name = "warehouse_time")
+    public String getWarehousetime() {
+        return warehouse_time;
+    }
+
+    public void setWarehousetime(String warehouse_time) {
+        this.warehouse_time = warehouse_time;
+    }
+
+    @Basic
     @Column(name = "finish_time")
     public String getFinishtime() {
         return finish_time;
@@ -224,6 +235,7 @@ public class Product {
                 ", station_time='" + station_time + '\'' +
                 ", clearance_time='" + clearance_time + '\'' +
                 ", truck_time='" + truck_time + '\'' +
+                ", warehouse_time='" + warehouse_time + '\'' +
                 ", finish_time='" + finish_time + '\'' +
                 '}';
     }

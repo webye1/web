@@ -9,7 +9,7 @@ import java.util.List;
 public class Focus {
     public static final Integer ADMIN_TYPE_ID = 0;
     private Integer focus_id;
-    private Integer union_id;
+    private String open_id;
     private String tracking_number;
     private String addition;
 
@@ -26,13 +26,13 @@ public class Focus {
     }
 
     @Basic
-    @Column(name = "union_id")
-    public Integer getUnionid() {
-        return union_id;
+    @Column(name = "open_id")
+    public String getOpenid() {
+        return open_id;
     }
 
-    public void setUnionid(Integer union_id) {
-        this.union_id = union_id;
+    public void setOpenid(String open_id) {
+        this.open_id = open_id;
     }
 
     @Basic
@@ -59,7 +59,7 @@ public class Focus {
     public String toString() {
         return "User{" +
                 "focus_id=" + focus_id +
-                ", union_id='" + union_id + '\'' +
+                ", open_id='" + open_id + '\'' +
                 ", tracking_number='" + tracking_number + '\'' +
                 ", addition='" + addition + '\'' +
                 '}';

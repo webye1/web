@@ -9,12 +9,17 @@ import com.reins.bookstore.service.ProductService;
 import com.reins.bookstore.service.RecordService;
 import com.reins.bookstore.utils.Message;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.criteria.CriteriaBuilder;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
+import java.util.Date;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
 
 
 import static com.reins.bookstore.utils.Adapter.js2product;
@@ -54,9 +59,48 @@ public class ProductController {
         System.out.println("getoneproduct");
         System.out.println(id);
         Product product = productService.getOneProduct(id);
+
         return wrapProduct(product);
     }
 
+
+
+
+    @Scheduled(cron = "0 15 10 ? * MON")
+    private void deleteProcudt(){
+        List<Product> products = productService.getAllProduct();
+        for(Product it :products){
+            if(it.getState().equals("已完成")) {
+
+                String time = it.getFinishtime();
+                String pattern = "yyyy-MM-dd HH:mm:ss";
+                SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+                Date date = null;
+                try {
+                    date = sdf.parse(time);
+                    Date currentDate = new Date();
+                    System.out.println("String类型的时间转换为Date类型成功：" + date);
+                    System.out.println("当前时间：" + currentDate);
+                    long days = ChronoUnit.DAYS.between(date.toInstant(), currentDate.toInstant());
+                    System.out.println("差：" + days);
+                    if (days >= 180) {
+                        deleteOneProduct(it.getTrackingnumber());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+
+
+    @RequestMapping("/getone")
+    public JSONObject getOnebyTn( @RequestParam(value = "tracking_number",required = false) String tracking_number
+    ) {
+        Product product = productService.getOneProduct(tracking_number);
+        return wrapProduct(product);
+    }
     @RequestMapping("/update")
     public  List<JSONObject> updateProduct(@RequestBody JSONObject jsonObject
     ) {
@@ -134,7 +178,7 @@ public class ProductController {
                 product.setStationtime((p.getStationtime()));
                 product.setPorttime(p.getPorttime());
                 product.setCompartmenttime(p.getCompartmenttime());
-
+                product.setWarehousetime(p.getWarehousetime());
 
                 if (state == null ){
                     product.setState(p.getState());
@@ -159,6 +203,8 @@ public class ProductController {
                         product.setClearancetime(op_time);
                     } else if (state.equals("已装车")) {
                         product.setTrucktime(op_time);
+                    } else if (state.equals("已到仓")) {
+                        product.setWarehousetime(op_time);
                     } else if (state.equals("已完成")) {
                         product.setFinishtime(op_time);
                         product.setCounternumber(null);//完成的柜号清空
@@ -210,18 +256,19 @@ public class ProductController {
     ) {
         List<String> results = new ArrayList<>();
 
-
-
         int max_id = productService.getMaxID();
         int num= jsonObjectList.size();
+        System.out.println("js_size:"+num);
         int i = 0;
         List<Product> productlist = new ArrayList<>();
         String s = "";
         List<Product> psearch = new ArrayList<>();
         List<Integer> p_state = new ArrayList<>();
         for(JSONObject jsonObject:jsonObjectList){
+
             if (jsonObject.getString("tracking_number")!=null && jsonObject.getString("tracking_number")!=""){
                 Product p =  productService.getOneProduct(jsonObject.getString("tracking_number"));
+
                 if (p == null){//插入
                     p_state.add(0);
                     psearch.add(new Product());
@@ -230,18 +277,23 @@ public class ProductController {
                     psearch.add(p);
                 }
             }else{
+
                 p_state.add(-1);
                 psearch.add(new Product());
             }
         }
         while(num-1000*i>0){
+
             for(int j=i*1000;j<min(i*1000+1000,num);j++){
+
                 JSONObject jsonObject = jsonObjectList.get(j);
                 if (jsonObject.getString("tracking_number")!=null && jsonObject.getString("tracking_number")!="")
                 {
+
                     //Product p = productService.getOneProduct(jsonObject.getString("tracking_number"));
                     Product product = new Product();
                     if(p_state.get(j) == 0){//插入
+
                         product = js2product(jsonObject);
                         product.setProductId(++max_id);
                     }else{//更新
@@ -306,7 +358,7 @@ public class ProductController {
                         product.setStationtime((p.getStationtime()));
                         product.setPorttime(p.getPorttime());
                         product.setCompartmenttime(p.getCompartmenttime());
-
+                        product.setWarehousetime(p.getWarehousetime());
 
                         if (state == null ){
                             product.setState(p.getState());
@@ -331,6 +383,8 @@ public class ProductController {
                                 product.setClearancetime(op_time);
                             } else if (state.equals("已装车")) {
                                 product.setTrucktime(op_time);
+                            } else if (state.equals("已到仓")) {
+                                product.setWarehousetime(op_time);
                             } else if (state.equals("已完成")) {
                                 product.setFinishtime(op_time);
                                 product.setCounternumber(null);//完成的柜号清空
@@ -340,6 +394,7 @@ public class ProductController {
 
                         }
                     }
+
                     if (product.getTrackingnumber()!=null&&product.getTrackingnumber()!=""){
                         productlist.add(product);
                         results.add("Insert all product!");
@@ -542,7 +597,7 @@ public class ProductController {
         product.setStationtime((p.getStationtime()));
         product.setPorttime(p.getPorttime());
         product.setCompartmenttime(p.getCompartmenttime());
-
+        product.setWarehousetime(p.getWarehousetime());
 
         if (state == null ){
             product.setState(p.getState());
@@ -567,6 +622,8 @@ public class ProductController {
                     product.setClearancetime(op_time);
                 } else if (state.equals("已装车")) {
                     product.setTrucktime(op_time);
+                } else if (state.equals("已到仓")) {
+                    product.setWarehousetime(op_time);
                 } else if (state.equals("已完成")) {
                     product.setFinishtime(op_time);
                     product.setCounternumber(null);//完成的柜号清空
@@ -594,6 +651,8 @@ public class ProductController {
             System.out.println("trackingnumber exist");
             return wrapProduct(null);
         }
+        //System.out.println("TN:"+p.getTrackingnumber());
+        //System.out.println("ID:"+p.getProductId());
         if (!productService.deleteOneProduct(p.getProductId())) {
             System.out.println("not found");
             return new Message(-1, "User not found.");

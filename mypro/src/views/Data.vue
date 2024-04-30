@@ -53,7 +53,8 @@
                 <option value="已到站">已到站</option>
                 <option value="清关中">清关中</option>
                 <option value="已装车">已装车</option>
-				<option value="已完成">已完成</option>
+                <option value="已到仓">已到仓</option>
+				        <option value="已完成">已完成</option>
             </select>
         </div>
 		<div id="data-display"></div>
@@ -208,9 +209,9 @@ export default {
   },
   to(path) {
             // this.$router.push(path);
-            console.log("to:");
-            console.log("props UT:", this.$route.query.currentUserType);
-            console.log("props UN:", this.$route.query.currentUserName);
+            // console.log("to:");
+            // console.log("props UT:", this.$route.query.currentUserType);
+            // console.log("props UN:", this.$route.query.currentUserName);
             let stringWithSlash = path;
             this.KeyWord = stringWithSlash.replace(/\//g, '');
 
@@ -230,10 +231,12 @@ export default {
       }
     },
     nextPage() {
+        
+        this.totalPages = Math.ceil(this.filteredItems.length / this.itemsPerPage);
+      if(this.currentPage < this.totalPages){
         this.currentPage++;
-        this.totalPages = Math.ceil(filteredByStatus.length / this.itemsPerPage);
-
-      if (this.currentPage > this.totalPages) {
+      }
+      if (this.currentPage >= this.totalPages) {
         this.currentPage = this.totalPages;
       }
     },
@@ -300,7 +303,7 @@ export default {
 
 async fetchDataFromBackend() {
     try {
-        const response = await axios.get('http://47.98.58.79:8080/Record/getall');
+        const response = await axios.get('https://www.hxlogistics.top/to_url/Record/getall/');
         let items = response.data;
         // 根据管理员类型为 1 仅显示特定用户的项目
         if (this.currentUserType === "1") {
@@ -352,7 +355,7 @@ filterByKeyword() {
     this.noData =  0;
     }
 
-    console.log( this.filteredItems); // 在这里打印筛选结果
+    // console.log( this.filteredItems); // 在这里打印筛选结果
   } else {
     // 如果搜索关键字为空，则重新应用状态筛选
     this.filterByStatus();

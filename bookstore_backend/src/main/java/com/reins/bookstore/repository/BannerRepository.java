@@ -18,6 +18,13 @@ public interface BannerRepository extends JpaRepository<Banner, Integer> {
     int getAll();
     @Transactional
     @Modifying
-    @Query(value = "INSERT INTO banner (banner_id, url) VALUES (2, ?1)",nativeQuery = true)
-    Integer insertOne(String url);
+    @Query(value = "INSERT INTO banner (banner_id, url) VALUES (?1, ?2)",nativeQuery = true)
+    Integer insertOne(int id,String url);
+
+
+    @Transactional
+    @Modifying
+    @Query(value = " DELETE FROM banner WHERE banner_id > 1;",nativeQuery = true)
+    Integer deleteall();
+
 }

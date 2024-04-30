@@ -62,13 +62,13 @@ public class FocusServiceImpl implements FocusService {
     }
 
     @Override
-    public Focus getOneFocus(Integer userid, String trackingnum) {
+    public Focus getOneFocus(String userid, String trackingnum) {
         Focus focus1 = focusDao.getOneFocus(userid,trackingnum);
         return focus1;
     }
 
     @Override
-    public List<Focus> getUnionFocus(Integer unionId) {
+    public List<Focus> getUnionFocus(String unionId) {
         List<Focus> focuslist = focusDao.getUnionFocus( unionId);
         return focuslist;
     }

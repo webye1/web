@@ -72,7 +72,7 @@
 		  username: this.username,
 		  password: this.password
 		};
-		const url = 'http://47.98.58.79:8080/Manager/find';
+		const url = 'https://www.hxlogistics.top/to_url/Manager/find/';
 		axios.post(url, {
 			username: data.username,
 			password: data.password

@@ -91,13 +91,13 @@
 		mounted() {
 			this.currentUserName = this.$route.query.currentUserName;
       this.currentUserType = this.$route.query.currentUserType;
-      console.log("un1:",this.$route.query.currentUserName);
-      console.log("ut1:",this.$route.query.currentUserType);
+    //   console.log("un1:",this.$route.query.currentUserName);
+    //   console.log("ut1:",this.$route.query.currentUserType);
 			// 页面加载时从localStorage读取用户类型
 			if (this.$route.query.currentUserType!=null && this.$route.query.currentUserName!=null) {
 
-        console.log("un2:",this.$route.query.currentUserName);
-        console.log("ut2:",this.$route.query.currentUserType);
+        // console.log("un2:",this.$route.query.currentUserName);
+        // console.log("ut2:",this.$route.query.currentUserType);
 						if(this.$route.query.currentUserType === "2"|| this.$route.query.currentUserType === "0"&& this.$route.query.ecurrentUserName !=''){
 
 						this.fetchProDataFromBackend();
@@ -126,8 +126,8 @@
 			}
 
 			else{
-        console.log("un3:",this.$route.query.currentUserName);
-        console.log("ut3:",this.$route.query.currentUserType);
+        // console.log("un3:",this.$route.query.currentUserName);
+        // console.log("ut3:",this.$route.query.currentUserType);
         this.$router.push('/')
         /*
 				if( this.currentUserType  === "1"){
@@ -172,9 +172,9 @@
         },
         methods: {
 			to(path) {
-			console.log("to_P:");
-            console.log("props UT:", this.$route.query.currentUserType);
-            console.log("props UN:", this.$route.query.currentUserName);
+			// console.log("to_P:");
+            // console.log("props UT:", this.$route.query.currentUserType);
+            // console.log("props UN:", this.$route.query.currentUserName);
             // this.$router.push(path);
             let stringWithSlash = path;
             this.KeyWord = stringWithSlash.replace(/\//g, '');
@@ -190,7 +190,7 @@
         },
             async fetchProDataFromBackend() {
                 try {
-                    const response = await axios.get('http://47.98.58.79:8080/Product/getall');
+                    const response = await axios.get('https://www.hxlogistics.top/to_url/Product/getall/');
                     this.items = response.data; // 假设后端返回的数据是一个数组
                     // 计算总页数
                     this.totalPages = Math.ceil(this.items.length / this.itemsPerPage);

@@ -7,9 +7,11 @@ public interface BannerDao {
 
     int getAll();
 
-    Banner insertOne(Banner banner);
+    Banner insertOne(int id,Banner banner);
 
     Banner updateOne(Banner banner);
 
     void deleteOne(int i);
+
+    void deleteall();
 }

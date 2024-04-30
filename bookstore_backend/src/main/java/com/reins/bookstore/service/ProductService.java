@@ -13,7 +13,7 @@ public interface ProductService {
 
     Product updateOneProduct(Product product);
 
-    boolean deleteOneProduct(int id);
+    boolean deleteOneProduct(Integer id);
 
     Product getOneProduct(String trackingNumber);
 

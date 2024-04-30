@@ -13,13 +13,13 @@ public class Adapter {
         JSONObject json = new JSONObject();
         if (focus == null) {
             json.put("focus_id", -1);
-            json.put("union_id", -1);
+            json.put("open_id", null);
             json.put("tracking_number", null);
             json.put("addition", null);
             return json;
         }
         json.put("foucus_id", focus.getFocusid());
-        json.put("union_id", focus.getUnionid());
+        json.put("open_id", focus.getOpenid());
         json.put("tracking_number", focus.getTrackingnum());
         json.put("addition", focus.getAddition());
         return json;
@@ -28,12 +28,12 @@ public class Adapter {
     public static JSONObject wrapWxuser(Wxuser wxuser) {
         JSONObject json = new JSONObject();
         if (wxuser == null) {
-            json.put("union_id", -1);
+            json.put("open_id", null);
             json.put("name", null);
             json.put("avatar", null);
             return json;
         }else {
-            json.put("union_id", wxuser.getUnionid());
+            json.put("open_id", wxuser.getOpenid());
             json.put("name", wxuser.getName());
             json.put("avatar", wxuser.getAvatar());
             return json;
@@ -78,6 +78,7 @@ public class Adapter {
             json.put("station_time",null);
             json.put("clearance_time", null);
             json.put("truck_time", null);
+            json.put("warehouse_time",null);
             json.put("finish_time",null);
             return json;
         }else{
@@ -97,6 +98,7 @@ public class Adapter {
             json.put("station_time",product.getStationtime());
             json.put("clearance_time", product.getClearancetime());
             json.put("truck_time", product.getTrucktime());
+            json.put("warehouse_time",product.getWarehousetime());
             json.put("finish_time",product.getFinishtime());
             return json;
         }
@@ -134,6 +136,8 @@ public class Adapter {
             product.setClearancetime(op_time);
         } else if (state.equals("已装车")) {
             product.setTrucktime(op_time);
+        } else if (state.equals("已到仓")) {
+            product.setWarehousetime(op_time);
         } else if (state.equals("已完成")) {
             product.setFinishtime(op_time);
             product.setCounternumber(null);//完成的柜号清空

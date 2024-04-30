@@ -10,10 +10,14 @@ import com.reins.bookstore.service.ProductService;
 import com.reins.bookstore.service.RecordService;
 import com.reins.bookstore.utils.Message;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.text.SimpleDateFormat;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.reins.bookstore.utils.Adapter.*;
@@ -44,6 +48,32 @@ public class RecordController {
         }
         System.out.println(resData);
         return resData;
+    }
+
+    @Scheduled(cron = "0 15 10 ? * MON")
+    private void deleteRecord(){
+        List<Record> records = recordService.getAllRecord();
+        for(Record it :records){
+
+            String time = it.getTimeoperating();
+            String pattern = "yyyy-MM-dd HH:mm:ss";
+            SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+            Date date = null;
+            try {
+                date = sdf.parse(time);
+                Date currentDate = new Date();
+                //System.out.println("String类型的时间转换为Date类型成功：" + date);
+                //System.out.println("当前时间：" + currentDate);
+                long days = ChronoUnit.DAYS.between(date.toInstant(), currentDate.toInstant());
+                System.out.println("差：" + days);
+                if (days >= 180) {
+                    deleteOneRecord(it.getRecordId());
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     @RequestMapping("/{id}")

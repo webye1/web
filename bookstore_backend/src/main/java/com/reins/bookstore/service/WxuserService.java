@@ -7,7 +7,7 @@ import java.util.List;
 public interface WxuserService {
     List<Wxuser> getAllWxuser();
 
-    Wxuser getOneWxuser(Integer id);
+    Wxuser getOneWxuser(String id);
 
     Wxuser insertOneWxuser(Wxuser wxuser1);
 
